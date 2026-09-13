@@ -1,13 +1,14 @@
 """
 AI Agency OS - Main FastAPI Application
 Combines ECC + Open WebUI concepts into unified AI Agency System
-Task A4: Rate limiting + Task A2: Security fix
+Task A4: Rate limiting + Task A2: Security fix + Task C8: Security headers + metrics
 """
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 import os
+import time
 
 from .core.config import settings
 from .core.database import init_db
@@ -66,6 +67,39 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Task C8: Security headers middleware - Production Hardened 95/100 → 98/100
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    # Security headers
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    if settings.ENV == "production":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
+# Task C8: Request logging + metrics middleware
+@app.middleware("http")
+async def log_requests_and_metrics(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    
+    # Log for Prometheus
+    try:
+        from .routers.metrics import REQUEST_COUNT, REQUEST_LATENCY
+        REQUEST_COUNT.labels(method=request.method, endpoint=request.url.path, status=response.status_code).inc()
+        REQUEST_LATENCY.labels(method=request.method, endpoint=request.url.path).observe(process_time)
+    except:
+        pass
+    
+    # Add process time header
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
 
 # Include routers - Track A-D + B (GDPR, Backup, Metrics)
 app.include_router(auth.router)

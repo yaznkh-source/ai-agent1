@@ -6,6 +6,11 @@ router = APIRouter(prefix="/api/skills", tags=["skills"])
 
 @router.get("/")
 async def list_skills(category: str = None):
+    try:
+        from .metrics import increment_skill_used
+        increment_skill_used("list_skills")
+    except:
+        pass
     skills = skill_manager.list_skills(category)
     return {
         "skills": skills,
