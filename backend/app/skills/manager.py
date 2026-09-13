@@ -488,18 +488,23 @@ class SkillManager:
     def __init__(self):
         self.skills = {s["id"]: s for s in BUILTIN_SKILLS}
         # Load extra skills
-        try:
-            from .extra_skills import get_extra_skills
-            for s in get_extra_skills():
-                self.skills[s["id"]] = s
-        except Exception as e:
-            print(f"Extra skills load failed: {e}")
-        try:
-            from .extra_skills_v2 import get_extra_skills_v2
-            for s in get_extra_skills_v2():
-                self.skills[s["id"]] = s
-        except Exception as e:
-            print(f"Extra v2 load failed: {e}")
+        for loader in [
+            ("extra_skills", "get_extra_skills"),
+            ("extra_skills_v2", "get_extra_skills_v2"),
+            ("extra_skills_v3", "get_extra_skills_v3"),
+            ("extra_skills_v4", "get_extra_skills_v4"),
+            ("extra_skills_v5", "get_extra_skills_v5"),
+            ("extra_skills_v6", "get_extra_skills_v6"),
+            ("extra_skills_v7", "get_extra_skills_v7"),
+        ]:
+            try:
+                module = __import__(f"app.skills.{loader[0]}", fromlist=[loader[1]])
+                func = getattr(module, loader[1])
+                for s in func():
+                    if s["id"] not in self.skills:
+                        self.skills[s["id"]] = s
+            except Exception as e:
+                print(f"{loader[0]} load failed: {e}")
         self.load_from_disk()
     
     def load_from_disk(self):

@@ -424,26 +424,34 @@ Your mindset: How could this fail? What did devs assume?""",
 # For extensibility - function to get all agents including custom
 def get_all_agents():
     agents = AGENT_DEFINITIONS.copy()
-    try:
-        from .extra_agents import get_extra_agents
-        agents += get_extra_agents()
-    except:
-        pass
-    try:
-        from .extra_agents_v2 import get_extra_agents_v2
-        agents += get_extra_agents_v2()
-    except Exception as e:
-        print(f"Extra v2 load failed: {e}")
+    for loader in [
+        ("extra_agents", "get_extra_agents"),
+        ("extra_agents_v2", "get_extra_agents_v2"),
+        ("extra_agents_v3", "get_extra_agents_v3"),
+    ]:
+        try:
+            module = __import__(f"app.agents.{loader[0]}", fromlist=[loader[1]])
+            func = getattr(module, loader[1])
+            agents += func()
+        except Exception as e:
+            print(f"{loader[0]} load failed: {e}")
     return agents
 
 def get_agent_by_id(agent_id: str):
-    for agent in AGENT_DEFINITIONS:
+    for agent in get_all_agents():
         if agent["id"] == agent_id:
             return agent
     return None
 
 def get_agents_by_category(category: str):
-    return [a for a in AGENT_DEFINITIONS if a["category"] == category]
+    return [a for a in get_all_agents() if a["category"] == category]
+
+def get_agent_categories_dynamic():
+    from collections import Counter
+    all_agents = get_all_agents()
+    cats = Counter(a["category"] for a in all_agents)
+    icons = {"planning": "🧭", "development": "💻", "review": "🔍", "research": "🔬", "operations": "⚙️", "data": "📊", "ai": "🤖", "content": "✍️"}
+    return {k: {"name": k.title(), "icon": icons.get(k, "•"), "count": v} for k, v in cats.items()}
 
 # Agent categories like ECC
 AGENT_CATEGORIES = {

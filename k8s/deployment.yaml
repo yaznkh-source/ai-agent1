@@ -1,0 +1,149 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-agency-backend
+  labels:
+    app: ai-agency
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ai-agency
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: ai-agency
+        tier: backend
+    spec:
+      containers:
+      - name: backend
+        image: ai-agency-os/backend:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_URL
+          value: "sqlite:///./data/ai_agency.db"
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-agency-secrets
+              key: openai-api-key
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-agency-secrets
+              key: secret-key
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: ai-agency-data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-agency-backend
+spec:
+  selector:
+    app: ai-agency
+    tier: backend
+  ports:
+  - port: 8000
+    targetPort: 8000
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-agency-frontend
+  labels:
+    app: ai-agency
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-agency
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: ai-agency
+        tier: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: ai-agency-os/frontend:latest
+        ports:
+        - containerPort: 5173
+        env:
+        - name: VITE_API_URL
+          value: "http://ai-agency-backend:8000"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-agency-frontend
+spec:
+  selector:
+    app: ai-agency
+    tier: frontend
+  ports:
+  - port: 80
+    targetPort: 5173
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-agency-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ai-agency-secrets
+type: Opaque
+stringData:
+  openai-api-key: "sk-..."
+  secret-key: "change-me-in-production"
