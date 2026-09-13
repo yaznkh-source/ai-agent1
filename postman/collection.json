@@ -1,0 +1,103 @@
+{
+  "info": {
+    "name": "AI Agency OS - 68 Agents, 292 Skills - API Collection",
+    "description": "Full API collection for AI Agency OS v12 - 19 routers, 80+ endpoints, 68 agents, 292 skills, Enterprise Ready\n\nBase URL: http://localhost:8000 or https://api.ai-agency.os\n\nAuth: Bearer JWT or API key\n\nDocs: http://localhost:8000/api/docs\n\nFeatures: Agents 68, Skills 292, Chat, Memory, Tools 9, Functions Pipe/Filter/Action/Event, Pipelines 4 + Builder, Agency Projects/Clients/Tasks, Knowledge RAG 5 collections, Verification real, Auth JWT/RBAC, Billing Stripe $0/$49/$199/$999, Eval, Integrations Slack/GitHub/Stripe/SendGrid/S3, Marketplace, Realtime WS, Storage S3/local, Email SendGrid/SMTP, Audit SOC2/GDPR, Teams RBAC + White-label, Zapier/Make/HubSpot/Slack 5000+ apps",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Root",
+      "item": [
+        { "name": "Get Features - 68 Agents 292 Skills", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] } } },
+        { "name": "Health Check", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] } } }
+      ]
+    },
+    {
+      "name": "Agents - 68",
+      "item": [
+        { "name": "List Agents - 68 total", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/agents/", "host": ["{{baseUrl}}"], "path": ["api", "agents", ""] } } },
+        { "name": "Get Agent - planner", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/agents/planner", "host": ["{{baseUrl}}"], "path": ["api", "agents", "planner"] } } },
+        { "name": "List Categories", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/agents/categories", "host": ["{{baseUrl}}"], "path": ["api", "agents", "categories"] } } },
+        { "name": "Run Agent - backend-dev Build API", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/agents/run", "host": ["{{baseUrl}}"], "path": ["api", "agents", "run"] }, "body": { "mode": "raw", "raw": "{\"agent_id\": \"backend-dev\", \"task\": \"Build REST API for todos with FastAPI\", \"context\": {\"user_id\": \"default-user\"}}", "options": { "raw": { "language": "json" } } } } }
+      ]
+    },
+    {
+      "name": "Skills - 292",
+      "item": [
+        { "name": "List Skills - 292 total", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/skills/", "host": ["{{baseUrl}}"], "path": ["api", "skills", ""] } } },
+        { "name": "Get Skill - tdd-workflow", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/skills/tdd-workflow", "host": ["{{baseUrl}}"], "path": ["api", "skills", "tdd-workflow"] } } },
+        { "name": "List Categories", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/skills/categories", "host": ["{{baseUrl}}"], "path": ["api", "skills", "categories"] } } }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        { "name": "Chat - Build landing page", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/chat/", "host": ["{{baseUrl}}"], "path": ["api", "chat", ""] }, "body": { "mode": "raw", "raw": "{\"message\": \"Build me a landing page for my AI agency with 68 agents\", \"agent_id\": \"frontend-dev\"}", "options": { "raw": { "language": "json" } } } } },
+        { "name": "List Conversations", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/chat/conversations", "host": ["{{baseUrl}}"], "path": ["api", "chat", "conversations"] } } }
+      ]
+    },
+    {
+      "name": "Pipelines - 4 + Builder",
+      "item": [
+        { "name": "List Pipelines - 4 built-in", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/pipelines/", "host": ["{{baseUrl}}"], "path": ["api", "pipelines", ""] } } },
+        { "name": "Run Pipeline - saas_onboarding", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/pipelines/run", "host": ["{{baseUrl}}"], "path": ["api", "pipelines", "run"] }, "body": { "mode": "raw", "raw": "{\"pipeline_id\": \"saas_onboarding\", \"input\": {\"client_name\": \"Test Co\", \"client_email\": \"client@example.com\", \"project_name\": \"Landing Page\"}}", "options": { "raw": { "language": "json" } } } } },
+        { "name": "Create Pipeline via Builder", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/pipelines/builder", "host": ["{{baseUrl}}"], "path": ["api", "pipelines", "builder"] }, "body": { "mode": "raw", "raw": "{\"name\": \"My Custom Pipeline\", \"steps\": [{\"agent_id\": \"planner\", \"task\": \"Plan project\", \"depends_on\": []}, {\"agent_id\": \"backend-dev\", \"task\": \"Build API\", \"depends_on\": [\"step_0\"]}]}", "options": { "raw": { "language": "json" } } } } }
+      ]
+    },
+    {
+      "name": "Agency OS",
+      "item": [
+        { "name": "List Projects", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/agency/projects", "host": ["{{baseUrl}}"], "path": ["api", "agency", "projects"] } } },
+        { "name": "Create Project", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/agency/projects", "host": ["{{baseUrl}}"], "path": ["api", "agency", "projects"] }, "body": { "mode": "raw", "raw": "{\"name\": \"Landing Page for AI Startup\", \"client_email\": \"client@example.com\", \"description\": \"Modern landing page with 68 agents showcase\"}", "options": { "raw": { "language": "json" } } } } },
+        { "name": "List Tasks", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/agency/tasks", "host": ["{{baseUrl}}"], "path": ["api", "agency", "tasks"] } } },
+        { "name": "Client Portal - client@example.com", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/agency/client-portal/client@example.com", "host": ["{{baseUrl}}"], "path": ["api", "agency", "client-portal", "client@example.com"] } } }
+      ]
+    },
+    {
+      "name": "Marketplace",
+      "item": [
+        { "name": "Marketplace Home - Featured + Stats", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/marketplace/", "host": ["{{baseUrl}}"], "path": ["api", "marketplace", ""] } } },
+        { "name": "Search - seo", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/marketplace/search?q=seo&type=skills", "host": ["{{baseUrl}}"], "path": ["api", "marketplace", "search"], "query": [{ "key": "q", "value": "seo" }, { "key": "type", "value": "skills" }] } } },
+        { "name": "Install Skill - seo-audit-pro", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/marketplace/skill/seo-audit-pro/install", "host": ["{{baseUrl}}"], "path": ["api", "marketplace", "skill", "seo-audit-pro", "install"] }, "body": { "mode": "raw", "raw": "{\"user_id\": \"default-user\"}", "options": { "raw": { "language": "json" } } } } }
+      ]
+    },
+    {
+      "name": "Realtime - WebSocket",
+      "item": [
+        { "name": "List Rooms", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/realtime/rooms", "host": ["{{baseUrl}}"], "path": ["api", "realtime", "rooms"] } } },
+        { "name": "Broadcast Message", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/realtime/broadcast", "host": ["{{baseUrl}}"], "path": ["api", "realtime", "broadcast"] }, "body": { "mode": "raw", "raw": "{\"room\": \"general\", \"message\": {\"type\": \"task_update\", \"task_id\": \"task_123\", \"status\": \"done\"}}", "options": { "raw": { "language": "json" } } } } },
+        { "name": "Notify Task Update", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/realtime/notify/task/task_123", "host": ["{{baseUrl}}"], "path": ["api", "realtime", "notify", "task", "task_123"] }, "body": { "mode": "raw", "raw": "{\"status\": \"in_progress\", \"project_id\": \"proj_123\", \"room\": \"general\"}", "options": { "raw": { "language": "json" } } } } }
+      ]
+    },
+    {
+      "name": "Audit - SOC2/GDPR",
+      "item": [
+        { "name": "List Logs - 50", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/audit/logs?limit=50", "host": ["{{baseUrl}}"], "path": ["api", "audit", "logs"], "query": [{ "key": "limit", "value": "50" }] } } },
+        { "name": "Stats", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/audit/stats", "host": ["{{baseUrl}}"], "path": ["api", "audit", "stats"] } } },
+        { "name": "Security Audit", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/audit/security", "host": ["{{baseUrl}}"], "path": ["api", "audit", "security"] } } }
+      ]
+    },
+    {
+      "name": "Teams + White-label",
+      "item": [
+        { "name": "List Teams", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/teams/", "host": ["{{baseUrl}}"], "path": ["api", "teams", ""] } } },
+        { "name": "Get Team - team_1", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/teams/team_1", "host": ["{{baseUrl}}"], "path": ["api", "teams", "team_1"] } } },
+        { "name": "Invite Member", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/teams/team_1/members/invite", "host": ["{{baseUrl}}"], "path": ["api", "teams", "team_1", "members", "invite"] }, "body": { "mode": "raw", "raw": "{\"email\": \"newmember@example.com\", \"role\": \"member\"}", "options": { "raw": { "language": "json" } } } } },
+        { "name": "Update White-label", "request": { "method": "PUT", "url": { "raw": "{{baseUrl}}/api/teams/team_1/settings/white-label", "host": ["{{baseUrl}}"], "path": ["api", "teams", "team_1", "settings", "white-label"] }, "body": { "mode": "raw", "raw": "{\"enabled\": true, \"brand_name\": \"Your Agency AI\", \"primary_color\": \"#FF6B6B\", \"logo_url\": \"https://your-domain.com/logo.png\", \"domain\": \"app.your-agency.com\"}", "options": { "raw": { "language": "json" } } } } }
+      ]
+    },
+    {
+      "name": "Zapier/Make/HubSpot/Slack",
+      "item": [
+        { "name": "Zapier Home - 5 Triggers 5 Actions", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/integrations/zapier/", "host": ["{{baseUrl}}"], "path": ["api", "integrations", "zapier", ""] } } },
+        { "name": "List Triggers", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/integrations/zapier/triggers", "host": ["{{baseUrl}}"], "path": ["api", "integrations", "zapier", "triggers"] } } },
+        { "name": "Test Trigger - new_project", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/integrations/zapier/triggers/new_project/test", "host": ["{{baseUrl}}"], "path": ["api", "integrations", "zapier", "triggers", "new_project", "test"] } } },
+        { "name": "Execute Action - create_project", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/integrations/zapier/actions/create_project/execute", "host": ["{{baseUrl}}"], "path": ["api", "integrations", "zapier", "actions", "create_project", "execute"] }, "body": { "mode": "raw", "raw": "{\"name\": \"Landing Page via Zapier\", \"client_email\": \"client@example.com\", \"description\": \"Created via Zapier\"}", "options": { "raw": { "language": "json" } } } } },
+        { "name": "Subscribe Webhook", "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/api/integrations/zapier/webhooks/subscribe", "host": ["{{baseUrl}}"], "path": ["api", "integrations", "zapier", "webhooks", "subscribe"] }, "body": { "mode": "raw", "raw": "{\"trigger_id\": \"new_project\", \"target_url\": \"https://hooks.zapier.com/hooks/catch/123/abc\", \"user_id\": \"default-user\"}", "options": { "raw": { "language": "json" } } } } }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000", "type": "string" }
+  ]
+}

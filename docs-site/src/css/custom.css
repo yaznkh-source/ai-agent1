@@ -1,0 +1,114 @@
+/**
+ * Custom CSS - AI Agency OS - Violet theme #8b5cf6
+ * Inspired by ECC + Open WebUI
+ */
+
+:root {
+  --ifm-color-primary: #8b5cf6;
+  --ifm-color-primary-dark: #7c3aed;
+  --ifm-color-primary-darker: #6d28d9;
+  --ifm-color-primary-darkest: #5b21b6;
+  --ifm-color-primary-light: #a78bfa;
+  --ifm-color-primary-lighter: #c4b5fd;
+  --ifm-color-primary-lightest: #ddd6fe;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(139, 92, 246, 0.1);
+  --ifm-navbar-background-color: #ffffff;
+  --ifm-footer-background-color: #18181b;
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #a78bfa;
+  --ifm-color-primary-dark: #8b5cf6;
+  --ifm-color-primary-darker: #7c3aed;
+  --ifm-color-primary-darkest: #6d28d9;
+  --ifm-color-primary-light: #c4b5fd;
+  --ifm-color-primary-lighter: #ddd6fe;
+  --ifm-color-primary-lightest: #ede9fe;
+  --docusaurus-highlighted-code-line-bg: rgba(139, 92, 246, 0.3);
+  --ifm-navbar-background-color: #18181b;
+  --ifm-footer-background-color: #09090b;
+}
+
+.hero {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #3b82f6 100%);
+  color: white;
+}
+
+.hero__title {
+  font-size: 3rem;
+  font-weight: 800;
+}
+
+.hero__subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.button--primary {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+}
+
+.button--primary:hover {
+  background: #7c3aed;
+  border-color: #7c3aed;
+}
+
+.stats-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #e4e4e7;
+  text-align: center;
+}
+
+.stats-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #8b5cf6;
+}
+
+.stats-label {
+  font-size: 0.9rem;
+  color: #71717a;
+  margin-top: 4px;
+}
+
+.feature-card {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border: 1px solid #ddd6fe;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.feature-card h3 {
+  color: #5b21b6;
+}
+
+.pricing-card {
+  background: white;
+  border: 2px solid #e4e4e7;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.pricing-card--popular {
+  border-color: #8b5cf6;
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.2);
+}
+
+.pricing-card__price {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #18181b;
+}
+
+.pricing-card__profit {
+  font-size: 0.9rem;
+  color: #22c55e;
+  font-weight: bold;
+  margin-top: 8px;
+}
