@@ -67,6 +67,7 @@ export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
     { id: 'skills', label: 'المهارات', labelEn: 'Skills', icon: Zap, track: 'D' },
     { id: 'pipelines', label: 'مسارات العمل', labelEn: 'Pipelines', icon: Workflow, track: 'C' },
     { id: 'pipeline-builder', label: 'منشئ المسارات', labelEn: 'Builder', icon: GitBranch, track: 'D' },
+    { id: 'pipeline-flow', label: 'منشئ Flow', labelEn: 'Flow Builder', icon: GitBranch, track: 'D' },
     { id: 'tools', label: 'الأدوات', labelEn: 'Tools', icon: Wrench, track: 'A' },
     { id: 'memory', label: 'الذاكرة', labelEn: 'Memory', icon: Brain, track: 'A' },
     { id: 'knowledge', label: 'المعرفة RAG', labelEn: 'Knowledge', icon: BookOpen, track: 'A' },
