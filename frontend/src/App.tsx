@@ -17,6 +17,8 @@ import PipelineFlowBuilder from './components/PipelineFlowBuilder';
 import ClientPortalView from './components/ClientPortalView';
 import LandingPageView from './components/LandingPageView';
 import AnalyticsView from './components/AnalyticsView';
+import MarketplaceView from './components/MarketplaceView';
+import RealtimeView from './components/RealtimeView';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -61,6 +63,10 @@ function App() {
         return <LandingPageView setActiveView={setActiveView} />;
       case 'analytics':
         return <AnalyticsView />;
+      case 'marketplace':
+        return <MarketplaceView />;
+      case 'realtime':
+        return <RealtimeView />;
       default:
         return <Dashboard />;
     }
