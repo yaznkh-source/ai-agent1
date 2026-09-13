@@ -31,6 +31,7 @@ import CuratedToolsView from './components/CuratedToolsView';
 import VoiceView from './components/VoiceView';
 import BetaView from './components/BetaView';
 import ProdLaunchView from './components/ProdLaunchView';
+import MRR30KView from './components/MRR30KView';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -103,6 +104,8 @@ function App() {
         return <BetaView />;
       case 'prod-launch':
         return <ProdLaunchView />;
+      case 'mrr-30k':
+        return <MRR30KView />;
       default:
         return <Dashboard />;
     }
