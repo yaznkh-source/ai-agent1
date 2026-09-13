@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { chatApi } from '../lib/api';
 import { useChatStore } from '../stores/chat';
-import { MessageSquare, Plus, Trash2, Bot, Zap, Brain, Wrench, Workflow, Shield, LayoutDashboard, Lock, BookOpen, BarChart3, Plug, CreditCard, Users } from 'lucide-react';
+import { MessageSquare, Plus, Trash2, Bot, Zap, Brain, Wrench, Workflow, Shield, LayoutDashboard, Lock, BookOpen, BarChart3, Plug, CreditCard, Users, GitBranch, FileText } from 'lucide-react';
 
 interface SidebarProps {
   activeView: string;
@@ -66,10 +66,12 @@ export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
     { id: 'agents', label: 'الوكلاء', labelEn: 'Agents', icon: Bot, track: 'D' },
     { id: 'skills', label: 'المهارات', labelEn: 'Skills', icon: Zap, track: 'D' },
     { id: 'pipelines', label: 'مسارات العمل', labelEn: 'Pipelines', icon: Workflow, track: 'C' },
+    { id: 'pipeline-builder', label: 'منشئ المسارات', labelEn: 'Builder', icon: GitBranch, track: 'D' },
     { id: 'tools', label: 'الأدوات', labelEn: 'Tools', icon: Wrench, track: 'A' },
     { id: 'memory', label: 'الذاكرة', labelEn: 'Memory', icon: Brain, track: 'A' },
     { id: 'knowledge', label: 'المعرفة RAG', labelEn: 'Knowledge', icon: BookOpen, track: 'A' },
     { id: 'agency', label: 'الوكالة', labelEn: 'Agency', icon: Users, track: 'A' },
+    { id: 'client-portal', label: 'بوابة العميل', labelEn: 'Client Portal', icon: FileText, track: 'A' },
     { id: 'security', label: 'الأمان', labelEn: 'Security', icon: Shield, track: 'C' },
     { id: 'auth', label: 'المصادقة', labelEn: 'Auth', icon: Lock, track: 'B' },
     { id: 'billing', label: 'الفوترة', labelEn: 'Billing', icon: CreditCard, track: 'B' },

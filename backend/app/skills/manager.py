@@ -494,6 +494,12 @@ class SkillManager:
                 self.skills[s["id"]] = s
         except Exception as e:
             print(f"Extra skills load failed: {e}")
+        try:
+            from .extra_skills_v2 import get_extra_skills_v2
+            for s in get_extra_skills_v2():
+                self.skills[s["id"]] = s
+        except Exception as e:
+            print(f"Extra v2 load failed: {e}")
         self.load_from_disk()
     
     def load_from_disk(self):

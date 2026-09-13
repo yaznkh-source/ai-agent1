@@ -423,11 +423,18 @@ Your mindset: How could this fail? What did devs assume?""",
 
 # For extensibility - function to get all agents including custom
 def get_all_agents():
+    agents = AGENT_DEFINITIONS.copy()
     try:
         from .extra_agents import get_extra_agents
-        return AGENT_DEFINITIONS + get_extra_agents()
+        agents += get_extra_agents()
     except:
-        return AGENT_DEFINITIONS
+        pass
+    try:
+        from .extra_agents_v2 import get_extra_agents_v2
+        agents += get_extra_agents_v2()
+    except Exception as e:
+        print(f"Extra v2 load failed: {e}")
+    return agents
 
 def get_agent_by_id(agent_id: str):
     for agent in AGENT_DEFINITIONS:

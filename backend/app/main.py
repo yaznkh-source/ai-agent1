@@ -10,7 +10,7 @@ import os
 
 from .core.config import settings
 from .core.database import init_db
-from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing
+from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing, verification
 from .core.auth import create_default_users
 
 # Initialize DB
@@ -52,6 +52,7 @@ app.include_router(knowledge.router)
 app.include_router(eval.router)
 app.include_router(integrations.router)
 app.include_router(billing.router)
+app.include_router(verification.router)
 
 @app.get("/")
 async def root():

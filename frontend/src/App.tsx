@@ -12,6 +12,8 @@ import KnowledgeView from './components/KnowledgeView';
 import EvalView from './components/EvalView';
 import IntegrationsView from './components/IntegrationsView';
 import BillingView from './components/BillingView';
+import PipelineBuilderView from './components/PipelineBuilderView';
+import ClientPortalView from './components/ClientPortalView';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -46,6 +48,10 @@ function App() {
         return <IntegrationsView />;
       case 'billing':
         return <BillingView />;
+      case 'pipeline-builder':
+        return <PipelineBuilderView />;
+      case 'client-portal':
+        return <ClientPortalView />;
       default:
         return <Dashboard />;
     }
