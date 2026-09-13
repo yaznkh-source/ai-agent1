@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { chatApi } from '../../lib/api';
 import { useChatStore } from '../../stores/chat';
-import { MessageSquare, Plus, Trash2, Bot, LayoutDashboard, Users, FileText, Settings, Shield, Sparkles, LogOut } from 'lucide-react';
+import { MessageSquare, Plus, Trash2, Bot, LayoutDashboard, Users, FileText, Settings, Shield, Sparkles, LogOut, Swords, Trophy } from 'lucide-react';
 
 interface Props {
   activeView: string;
@@ -51,9 +51,11 @@ export default function ProductionSidebar({ activeView, setActiveView, isAdmin }
     } catch {}
   };
 
-  // للمستخدم العادي — فقط ما يحتاجه — مثل ChatGPT / Manus / Arena.ai
+  // للمستخدم العادي — فقط ما يحتاجه — مثل ChatGPT / Manus / Arena.ai — نظيف 10 views — Battle + Leaderboard — يعمل فعلياً
   const userMenu = [
     { id: 'chat', label: 'المحادثة', icon: MessageSquare },
+    { id: 'battle', label: 'ساحة المعركة', icon: Swords },
+    { id: 'leaderboard', label: 'لوحة الصدارة', icon: Trophy },
     { id: 'agents', label: 'الوكلاء', icon: Bot },
     { id: 'projects', label: 'المشاريع', icon: FileText },
     { id: 'agency', label: 'الوكالة', icon: Users },
