@@ -1,207 +1,149 @@
-# AI Agency OS - Architecture Deep Dive
+# Architecture - AI Agency OS v9
 
 ## Overview
-AI Agency OS يجمع أفضل ما في ECC و Open WebUI:
 
-### ECC Inspiration (Everything Claude Code)
-- **Original**: https://github.com/affaan-m/ECC - 257k stars, 38.5k forks
-- **Core Idea**: Agent harness performance optimization system
-- **Key Concepts Adopted**:
-  1. **Agents**: 68 specialized agents with isolated context
-  2. **Skills**: 292 reusable workflows loaded on-demand (context optimization)
-  3. **Hooks**: SessionStart, SessionEnd, PreToolUse, PostToolUse - run outside model context
-  4. **Memory**: Session summaries + long-term memory with char cap
-  5. **Instincts**: Continuous learning v2 - patterns extracted with confidence scoring, clustered into skills via /evolve
-  6. **Verification Loop**: Build, test, lint, typecheck, security - deterministic gate
-  7. **AgentShield**: Security scanning for prompts, hooks, MCP, secrets
-  8. **Workflow**: plan -> test -> implement -> review -> verify -> remember -> improve
-
-### Open WebUI Inspiration
-- **Original**: https://github.com/open-webui/open-webui - 152k stars, 22.2k forks
-- **Core Idea**: User-friendly AI Interface (Supports Ollama, OpenAI API, ...)
-- **Key Concepts Adopted**:
-  1. **Multi-Provider LLM**: OpenAI, Anthropic, Ollama, OpenAI-compatible
-  2. **Tools**: Extend LLM abilities (weather, search, real-time data) - called by model during inference
-  3. **Functions**:
-     - **Pipe**: Adds custom model/agent (appears as selectable model) - model providers, agents, non-LLM interfaces, proxies
-     - **Filter**: Intercepts data flowing to/from models (inlet, outlet, stream) - translation, moderation, logging, rate limiting
-     - **Action**: Adds interactive buttons to messages - export, summarize, trigger workflows
-     - **Event**: Reacts to system-wide activity (170+ events) - auth.signup, chat.deleted, etc
-  4. **Pipelines**: OpenAI API compatible framework for offloading heavy processing - standalone pipelines instance acts as intermediary
-  5. **Knowledge Collections / RAG**: Internal knowledge search
-  6. **Workspace**: Prompts, models, knowledge management
-  7. **Chat Interface**: User-friendly chat with model selector, history, etc
-
-## System Architecture
+AI Agency OS is a full-stack AI agency automation system inspired by ECC (68 agents, 292 skills) and Open WebUI (user-friendly chat, Tools/Functions, Pipelines).
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        Frontend (React)                         │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐ │
-│  │   Chat   │ │  Agents  │ │  Skills  │ │Pipelines │ │ Agency │ │
-│  │  (Open   │ │  (ECC)   │ │  (ECC)   │ │(OpenWebUI│ │(New)   │ │
-│  │  WebUI)  │ │          │ │          │ │)         │ │        │ │
-│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘ └───┬────┘ │
-│       │            │            │            │           │      │
-└───────┼────────────┼────────────┼────────────┼───────────┼──────┘
-        │            │            │            │           │
-┌───────▼────────────▼────────────▼────────────▼───────────▼──────┐
-│                     Backend (FastAPI)                           │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │                    Core Layer                            │  │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────────────────────┐ │  │
-│  │  │  Config  │ │   LLM    │ │       AgentShield        │ │  │
-│  │  │(OpenWebUI│ │(Multi-   │ │       (ECC)              │ │  │
-│  │  │+ ECC)    │ │ Provider)│ │                          │ │  │
-│  │  └──────────┘ └──────────┘ └──────────────────────────┘ │  │
-│  └─────────────────────────────────────────────────────────┘  │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │                   Agent Layer (ECC)                     │  │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────────────────────┐ │  │
-│  │  │Definitions│ │Orchestr. │ │  Workflows               │ │  │
-│  │  │20 agents │ │plan→test │ │  full_feature, quick,    │ │  │
-│  │  │→68 ext.  │ │→impl→rev │ │  research_first, security│ │  │
-│  │  └──────────┘ └──────────┘ └──────────────────────────┘ │  │
-│  └─────────────────────────────────────────────────────────┘  │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │                   Skills Layer (ECC)                    │  │
-│  │  15 skills → 292 extensible, MD-based, on-demand load  │  │
-│  └─────────────────────────────────────────────────────────┘  │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │              Memory & Learning Layer (ECC)              │  │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────────────────────┐ │  │
-│  │  │  Memory  │ │Instincts │ │  Hooks                   │ │  │
-│  │  │ Session  │ │Continuous│ │  SessionStart/End,       │ │  │
-│  │  │ + Long   │ │ Learning │ │  Pre/PostToolUse,        │ │  │
-│  │  │          │ │ v2       │ │  Pre/PostMessage         │ │  │
-│  │  └──────────┘ └──────────┘ └──────────────────────────┘ │  │
-│  └─────────────────────────────────────────────────────────┘  │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │              Extensibility Layer (Open WebUI)           │  │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────────────────────┐ │  │
-│  │  │  Tools   │ │Functions │ │  Pipelines               │ │  │
-│  │  │ 9 tools  │ │Pipe/Filter│ │  4 pipelines,            │ │  │
-│  │  │ OpenAI   │ │Action/Ev.│ │  OpenAI API compat       │ │  │
-│  │  │ func call│ │          │ │  Heavy offload           │ │  │
-│  │  └──────────┘ └──────────┘ └──────────────────────────┘ │  │
-│  └─────────────────────────────────────────────────────────┘  │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │                Agency Layer (New)                       │  │
-│  │  Clients → Projects → Tasks + Dashboard + Verification  │  │
-│  └─────────────────────────────────────────────────────────┘  │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │                 API Layer (8 Routers)                   │  │
-│  │  /chats, /agents, /skills, /memory, /tools, /functions, │  │
-│  │  /pipelines, /agency                                    │  │
-│  └─────────────────────────────────────────────────────────┘  │
+│                        Frontend (React + Vite)                  │
+│  21 Views: Landing, Dashboard, Analytics, Marketplace, Realtime, │
+│  Audit, Teams, Chat, Agents (68), Skills (292), Pipelines,      │
+│  Builder, Flow Builder, Tools, Memory, Knowledge RAG, Agency,    │
+│  Client Portal, Security, Auth, Billing, Eval, Integrations      │
 └─────────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────▼───────────────────────────────────┐
-│                      Persistence                                │
-│  SQLite (chats, messages, memory, clients, projects, tasks)    │
-│  ChromaDB (optional vector search)                              │
-│  File System (skills/*.md)                                      │
+                                 │
+                                 │ REST + WebSocket
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     Backend (FastAPI) - 18 Routers              │
+│                                                                 │
+│  Core:                                                          │
+│  - Agents: 68 specialized (ECC parity)                          │
+│  - Skills: 292 reusable (ECC parity)                            │
+│  - Memory: episodic + semantic + procedural + instincts         │
+│  - Tools: 9 OpenAI-compatible functions                         │
+│  - Functions: Pipe (new model), Filter (middleware), Action     │
+│  - Pipelines: OpenAI-compatible, 4 built-in + builder           │
+│                                                                 │
+│  Agency OS (Track A):                                           │
+│  - Chat, Agency (projects, clients, tasks), Knowledge RAG       │
+│  - Client Portal, Verification (real), Pipeline Builder/Flow    │
+│  - Storage (S3/local), Email (SendGrid/SMTP), Realtime WS       │
+│                                                                 │
+│  SaaS (Track B):                                                │
+│  - Auth (JWT, RBAC), Billing (Stripe), Eval (accuracy),         │
+│  - Analytics (cost, revenue), Marketplace, Audit (SOC2/GDPR),   │
+│  - Teams (RBAC + white-label), Landing Page                     │
+│                                                                 │
+│  Production (Track C):                                          │
+│  - Security (AgentShield, prompt injection), Integrations       │
+│  - Realtime, Audit, K8s, CI/CD, PWA, SDKs                       │
+│                                                                 │
+│  Cross-harness (Track D):                                       │
+│  - 68 agents with dynamic loader, 292 skills v1-v7,             │
+│  - Pipeline Builder + Flow Builder (React Flow)                 │
 └─────────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────▼───────────────────────────────────┐
-│                      LLM Providers                              │
-│  OpenAI API, Anthropic, Ollama (local), Custom OpenAI-compat   │
-└─────────────────────────────────────────────────────────────────┘
+                                 │
+                ┌────────────────┼────────────────┐
+                ▼                ▼                ▼
+        ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+        │  PostgreSQL  │ │    Redis     │ │   ChromaDB   │
+        │  (projects,  │ │  (cache,     │ │  (vectors,   │
+        │   tasks,     │ │   sessions,  │ │   RAG)       │
+        │   users)     │ │   queue)     │ │              │
+        └──────────────┘ └──────────────┘ └──────────────┘
+                │                │                │
+                └────────────────┼────────────────┘
+                                 ▼
+        ┌─────────────────────────────────────────┐
+        │           External Services             │
+        │  - LLM: Ollama (local) + OpenAI API     │
+        │  - Storage: S3 / MinIO / Local          │
+        │  - Email: SendGrid / SMTP               │
+        │  - Billing: Stripe                      │
+        │  - Monitoring: Prometheus + Grafana     │
+        └─────────────────────────────────────────┘
 ```
 
-## Data Flow Examples
+## Data Flow
 
-### 1. Chat with Agent (ECC + Open WebUI)
+### 1. Client Onboarding
 ```
-User Message → PreMessage Hook (filter) → Agent Selection → Skill Injection → Memory Retrieval → LLM Call (with Tools) → Tool Execution (with PreToolUse security) → PostToolUse Hook (instinct) → PostMessage Hook → SessionEnd Hook (summary) → Response
-```
-
-### 2. Multi-Agent Workflow (ECC: plan→test→implement→review)
-```
-Task → Planner Agent (creates plan artifact) → Architect Agent (design) → Backend Dev (TDD: RED→GREEN→REFACTOR) → Frontend Dev → Reviewer Agent (FRESH CONTEXT - ECC key insight) → QA Engineer → Verification Loop (build, test, lint, typecheck, security) → Memory Save
+User creates project → Agency Router → Email Service (onboarding) → Client Portal
+                     → Task creation → Agent assignment → Pipeline execution
 ```
 
-### 3. Pipeline Execution (Open WebUI Pipelines)
+### 2. Agent Execution (Real-time)
 ```
-Context {task, client_name} → Step 1: Agent (researcher) → Step 2: Agent (planner) → Step 3: Tool (proposal_generator) → Step 4: LLM (checklist) → Final Result + History
-```
-
-### 4. Memory & Instincts (ECC Continuous Learning)
-```
-Session → SessionStart Hook loads memories → Interaction → Tool Use → PostToolUse records instinct pattern → SessionEnd Hook distills summary → Save memory → If 3+ related instincts with high confidence → Evolve to Skill via /evolve
+User message → Chat Router → Agent selection (68) → Skill injection (292)
+             → Tool calling (9) → Memory retrieval → LLM (Ollama/OpenAI)
+             → WebSocket broadcast (token by token) → Frontend live update
+             → Verification loop → Task update → Email to client
 ```
 
-## Security (AgentShield)
-
-Inspired by ECC's AgentShield:
-- Scans: prompts, hooks, MCP config, permissions, secrets, agent files
-- Patterns:
-  - Secrets: OpenAI keys, Anthropic keys, GitHub tokens, AWS keys, private keys, Google API keys
-  - Injection: "ignore previous instructions", "system: you are now", <script, eval(, exec(, __import__, os.system, subprocess
-  - Dangerous: rm -rf, chmod 777, mkfs, fork bomb, curl|sh
-- Severity: critical, high, medium, low
-- Status: secure, warning, critical
-
-## Extensibility
-
-### Adding Agent (ECC: 68 agents)
-Edit `backend/app/agents/definitions.py`:
-```python
-{
-  "id": "my-agent",
-  "name": "My Agent",
-  "role": "...",
-  "category": "development",
-  "system_prompt": "...",
-  "skills": ["tdd-workflow"],
-  "tools": ["code_write"],
-  "model": "gpt-4o-mini",
-  "color": "#8B5CF6"
-}
+### 3. RAG
+```
+Document upload → Storage (S3) → Chunking → Embedding (ChromaDB)
+                → Query → HyDE + reranking → Context → Agent
 ```
 
-### Adding Skill (ECC: 292 skills)
-Create `backend/app/skills/definitions/my-skill.md`:
-```markdown
-# My Skill
-Content...
+### 4. Billing
 ```
-Or via API: POST /api/skills/
-
-### Adding Tool (Open WebUI Tools)
-Edit `backend/app/tools/registry.py`:
-```python
-{
-  "id": "my_tool",
-  "name": "My Tool",
-  "schema": {
-    "type": "function",
-    "function": {
-      "name": "my_tool",
-      "description": "...",
-      "parameters": {...}
-    }
-  }
-}
+Agent run → Cost tracking (tokens * price) → Billing Router
+          → Usage aggregation → Stripe invoice → Email
 ```
-And implementation in `register_builtin_implementations()`
 
-### Adding Pipeline (Open WebUI Pipelines)
-Via API: POST /api/pipelines/ or edit `backend/app/pipelines/engine.py`
+## Tech Stack
 
-### Adding Function (Open WebUI Functions)
-Via API: POST /api/functions/ with type pipe/filter/action/event
+- **Backend**: FastAPI, Python 3.11, Pydantic, JWT, Bcrypt, SQLAlchemy (optional), ChromaDB, Boto3, SendGrid
+- **Frontend**: React 18, Vite 5, TailwindCSS, Recharts, React Flow, Lucide Icons, Axios
+- **Infra**: Docker, K8s (3 backend replicas, 2 frontend, PVC 10Gi), CI/CD (GitHub Actions), PWA (manifest + SW)
+- **LLM**: Ollama (local) + OpenAI compatible API
+- **Storage**: S3/MinIO/Local, Postgres, Redis, ChromaDB
+- **Monitoring**: Prometheus, Grafana, Audit logs (SOC2/GDPR)
 
-## Performance Considerations
+## Security
 
-- **Context Optimization**: Skills loaded on-demand, not always (ECC)
-- **Memory Cap**: 10k chars max to avoid blowing context window
-- **Fresh Context Reviewer**: Isolated context for review to avoid blind spots
-- **Hooks Outside Model**: Deterministic checks outside prompt (ECC)
-- **Pipelines Offload**: Heavy processing offloaded from main instance (Open WebUI)
+- **AgentShield**: Prompt injection detection, secret scanning, tool validation
+- **Auth**: JWT, RBAC (owner/admin/member/client/viewer), bcrypt 4.0.1
+- **Audit**: All actions logged with IP, user, timestamp for SOC2/GDPR
+- **Verification**: Real test execution, not mock
+- **Secrets**: K8s secrets, .env, not in Git
 
-## Deployment
+## Scalability
 
-- **Dev**: `npm run dev` + `uvicorn --reload`
-- **Docker**: `docker-compose up`
-- **Preview Support**: host 0.0.0.0, CORS *, allowedHosts true, X-Frame-Options ALLOWALL
+- **Horizontal**: K8s 3 backend replicas, stateless, Redis for sessions
+- **Vertical**: Agent execution queue, pipeline parallel steps
+- **Cost**: Ollama for simple tasks (88% margin), OpenAI for complex, cost tracking per client
+
+## White-label
+
+- Brand name, logo, primary color, domain via API + env vars
+- PWA manifest dynamic, email templates branded, Stripe own account
+- Pricing: $199/$499/$999 for Starter/Pro/Enterprise white-label
+
+## Marketplace
+
+- Skills, Pipelines, Agents with rating, downloads, price, author
+- 30% commission, install via API, search, featured
+- Inspiration: Open WebUI community + ECC marketplace
+
+## SDKs
+
+- Python: `AIAgencyClient` with all APIs
+- TypeScript: same + WebSocket helper
+- Future: Go, Rust, etc.
+
+## PWA / Mobile
+
+- Manifest + Service Worker + Push notifications
+- Installable on mobile, offline cache, task update push
+- Future: React Native app with same APIs
+
+## Roadmap
+
+- Q1 2024: MVP done (68 agents, 292 skills, 21 views)
+- Q2 2024: Polish, docs, SDKs, PWA, white-label, marketplace
+- Q3 2024: Scale, 1000 users, mobile app, Zapier/HubSpot deep
+- Q4 2024: Enterprise, on-premise, SOC2 cert, $150K MRR
