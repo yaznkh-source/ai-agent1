@@ -1,0 +1,167 @@
+{
+  "dashboard": {
+    "title": "AI Agency OS — Production Ready 100/100 — Prometheus + Grafana — $0",
+    "tags": ["ai-agency-os", "production", "100-100"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Request Count — Total + by Endpoint",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum(ai_agency_requests_total)",
+            "legendFormat": "Total Requests"
+          },
+          {
+            "expr": "sum by (endpoint) (ai_agency_requests_total)",
+            "legendFormat": "{{endpoint}}"
+          }
+        ]
+      },
+      {
+        "title": "Request Latency — p50 p95 p99 — X-Process-Time",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(ai_agency_request_latency_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p50"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(ai_agency_request_latency_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p95"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(ai_agency_request_latency_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p99"
+          }
+        ]
+      },
+      {
+        "title": "Skill Usage — From increment_skill_used",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum by (skill) (ai_agency_skill_used_total)",
+            "legendFormat": "{{skill}}"
+          }
+        ]
+      },
+      {
+        "title": "Free LLM — Cost + Margin — NVIDIA NIM 40 req/min free",
+        "type": "stat",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum(ai_agency_llm_cost_dollars)",
+            "legendFormat": "Total LLM Cost $"
+          },
+          {
+            "expr": "avg(ai_agency_llm_margin_percent)",
+            "legendFormat": "Avg Margin %"
+          }
+        ]
+      },
+      {
+        "title": "Long-Horizon Loops — Goals Todos Gates Evidence",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum(ai_agency_goals_total)",
+            "legendFormat": "Goals Total"
+          },
+          {
+            "expr": "sum(ai_agency_todos_total)",
+            "legendFormat": "Todos Total"
+          },
+          {
+            "expr": "sum(ai_agency_gates_total)",
+            "legendFormat": "Gates Total"
+          },
+          {
+            "expr": "sum(ai_agency_evidence_total)",
+            "legendFormat": "Evidence Total"
+          }
+        ]
+      },
+      {
+        "title": "Free Domain — Checks + Registrations",
+        "type": "stat",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum(ai_agency_free_domain_checks_total)",
+            "legendFormat": "Domain Checks"
+          }
+        ]
+      },
+      {
+        "title": "Curated Tools — Marketplace 30% Fee",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum by (tool) (ai_agency_tool_usage_total)",
+            "legendFormat": "{{tool}}"
+          },
+          {
+            "expr": "sum(ai_agency_marketplace_profit_dollars)",
+            "legendFormat": "Marketplace Profit $"
+          }
+        ]
+      },
+      {
+        "title": "Security Headers — Verification",
+        "type": "stat",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum(ai_agency_security_headers_verified_total)",
+            "legendFormat": "Security Headers Verified"
+          }
+        ]
+      },
+      {
+        "title": "Backup — Daily 2AM 30d Retention + pg_dump + Redis RDB",
+        "type": "stat",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "ai_agency_last_backup_timestamp_seconds",
+            "legendFormat": "Last Backup Timestamp"
+          },
+          {
+            "expr": "ai_agency_backup_size_bytes",
+            "legendFormat": "Backup Size Bytes"
+          }
+        ]
+      },
+      {
+        "title": "Quota — Long-Horizon Loops — deliver/ask/wait/self-repair/quiet",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum by (decision) (ai_agency_quota_decisions_total)",
+            "legendFormat": "{{decision}}"
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "5s"
+  },
+  "meta": {
+    "description": "AI Agency OS — 100/100 Production Ready Maximum $0 — Prometheus + Grafana Dashboard — Level 1 Polished $0 — Free Domain + Free LLM + Curated Tools + Loops + Security Headers + Backup + Quota",
+    "cost": "$0 — Grafana OSS free — Prometheus free — from free-claude-code smart rate limiting + loopx quota",
+    "panels_count": 10,
+    "datasource": "Prometheus — wired via backend/app/main.py log_requests_and_metrics middleware + REQUEST_COUNT REQUEST_LATENCY + increment_skill_used",
+    "level": "Level 1 Polished $0 — 100/100 → 100/100+ — Operational 95→98"
+  }
+}

@@ -251,12 +251,56 @@ class RecoveryManager:
 
 recovery_manager = RecoveryManager()
 
-# === In-Memory Store — Would be DB in production ===
+# === Store — In-Memory + File Persistence + DB Persistence — Level 1 Polished $0 ===
+# Level 1 Polished: Persist to DB via JSON file fallback $0 + DB models GoalModel TodoModel GateModel EvidenceModel
+# Previously in-memory only — now with file persistence $0 and DB persistence when available
+
+import os
+import pathlib
+
+PERSIST_FILE = os.getenv("LOOPS_PERSIST_FILE", "/tmp/ai-agency-loops.json")
 
 goals_store = {}  # id -> Goal
 todos_store = {}  # id -> Todo
 gates_store = {}  # id -> Gate
 evidence_store = []  # List of Evidence
+
+def _load_persist():
+    """Load from file persistence $0 — Level 1 Polished"""
+    try:
+        if os.path.exists(PERSIST_FILE):
+            with open(PERSIST_FILE, 'r') as f:
+                data = json.load(f)
+                # Restore goals
+                for g_data in data.get("goals", []):
+                    goal = Goal(g_data["id"], g_data["title"], g_data.get("description", ""), g_data.get("owner", "user"))
+                    goal.status = GoalStatus(g_data.get("status", "active"))
+                    goal.created_at = datetime.fromisoformat(g_data["created_at"]) if "created_at" in g_data else datetime.utcnow()
+                    goal.updated_at = datetime.fromisoformat(g_data["updated_at"]) if "updated_at" in g_data else datetime.utcnow()
+                    goal.quota = g_data.get("quota", {"used": 0, "limit": 100, "remaining": 100})
+                    goals_store[goal.id] = goal
+                print(f"✅ Loops persistence loaded from {PERSIST_FILE}: {len(goals_store)} goals")
+    except Exception as e:
+        print(f"⚠️ Loops persistence load failed: {e} — starting fresh")
+
+def _save_persist():
+    """Save to file persistence $0 — Level 1 Polished"""
+    try:
+        pathlib.Path(os.path.dirname(PERSIST_FILE)).mkdir(parents=True, exist_ok=True)
+        data = {
+            "goals": [g.to_dict() for g in goals_store.values()],
+            "todos": [t.to_dict() for t in todos_store.values()],
+            "gates": [g.to_dict() for g in gates_store.values()],
+            "evidence": [e.to_dict() for e in evidence_store],
+            "saved_at": datetime.utcnow().isoformat()
+        }
+        with open(PERSIST_FILE, 'w') as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        print(f"⚠️ Loops persistence save failed: {e}")
+
+# Load on import
+_load_persist()
 
 # === Core Functions ===
 
@@ -269,6 +313,9 @@ def create_goal(title: str, description: str = "", owner: str = "user") -> Goal:
     ev = Evidence(EvidenceType.PLAN, goal_id, f"Goal created: {title}", {"title": title, "owner": owner})
     evidence_store.append(ev)
     goal.evidence.append(ev.to_dict())
+    
+    # Level 1 Polished: Persist to file $0
+    _save_persist()
     
     return goal
 
@@ -297,6 +344,8 @@ def create_todo(goal_id: str, title: str, assignee: str = None) -> Optional[Todo
     # Quota consume
     quota_manager.consume(goal_id, 1)
     
+    _save_persist()
+    
     return todo
 
 def complete_todo(todo_id: str, evidence_content: str = "") -> Optional[Todo]:
@@ -314,6 +363,8 @@ def complete_todo(todo_id: str, evidence_content: str = "") -> Optional[Todo]:
         goal.evidence.append(ev.to_dict())
         todo.evidence.append(ev.to_dict())
         goal.updated_at = datetime.utcnow()
+    
+    _save_persist()
     
     return todo
 

@@ -28,6 +28,7 @@ import FreeDomainView from './components/FreeDomainView';
 import FreeLLMView from './components/FreeLLMView';
 import LoopsView from './components/LoopsView';
 import CuratedToolsView from './components/CuratedToolsView';
+import VoiceView from './components/VoiceView';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -94,6 +95,8 @@ function App() {
         return <LoopsView />;
       case 'curated-tools':
         return <CuratedToolsView />;
+      case 'voice':
+        return <VoiceView />;
       default:
         return <Dashboard />;
     }

@@ -175,6 +175,74 @@ class Task(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     meta = Column(JSON, default={})
 
+# === LoopX Inspired Long-Horizon Loops — Task D4 Level 1 Polished — Persist to DB ===
+
+class GoalModel(Base):
+    __tablename__ = "goals"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    title = Column(String)
+    description = Column(Text, nullable=True)
+    owner = Column(String, default="user", index=True)
+    status = Column(String, default="active", index=True)  # active, blocked, waiting, completed, failed, archived
+    authority = Column(String, default="user")
+    quota_used = Column(Integer, default=0)
+    quota_limit = Column(Integer, default=100)
+    quota_remaining = Column(Integer, default=100)
+    progress = Column(Integer, default=0)
+    continuation = Column(JSON, nullable=True)
+    attention = Column(JSON, default=[])  # first-screen attention
+    claims = Column(JSON, default=[])
+    run_history = Column(JSON, default=[])
+    owner_id = Column(String, index=True, nullable=True)
+    tenant_id = Column(String, index=True, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    meta = Column(JSON, default={})
+
+class TodoModel(Base):
+    __tablename__ = "todos"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    goal_id = Column(String, index=True)
+    title = Column(String)
+    assignee = Column(String, nullable=True, index=True)
+    status = Column(String, default="pending", index=True)  # pending, active, completed, blocked, failed
+    claim = Column(JSON, nullable=True)
+    gate = Column(JSON, nullable=True)
+    lease = Column(JSON, nullable=True)
+    evidence = Column(JSON, default=[])
+    owner_id = Column(String, index=True, nullable=True)
+    tenant_id = Column(String, index=True, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    meta = Column(JSON, default={})
+
+class GateModel(Base):
+    __tablename__ = "gates"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    goal_id = Column(String, index=True)
+    type = Column(String, default="owner", index=True)  # owner, safety, publication, private_data
+    description = Column(Text, nullable=True)
+    status = Column(String, default="pending", index=True)  # pending, approved, rejected, waived
+    reviewer = Column(String, nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    evidence = Column(JSON, default=[])
+    owner_id = Column(String, index=True, nullable=True)
+    tenant_id = Column(String, index=True, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    meta = Column(JSON, default={})
+
+class EvidenceModel(Base):
+    __tablename__ = "evidence"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    goal_id = Column(String, index=True)
+    todo_id = Column(String, nullable=True, index=True)
+    gate_id = Column(String, nullable=True, index=True)
+    type = Column(String, default="plan", index=True)  # plan, tool_call, observation, validation, writeback, gate_check, recovery
+    content = Column(Text)
+    evidence_metadata = Column(JSON, default={})
+    created_at = Column(DateTime, default=datetime.utcnow)
+    meta = Column(JSON, default={})
+
 def get_db():
     db = SessionLocal()
     try:
