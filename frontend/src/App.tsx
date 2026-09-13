@@ -30,6 +30,7 @@ import LoopsView from './components/LoopsView';
 import CuratedToolsView from './components/CuratedToolsView';
 import VoiceView from './components/VoiceView';
 import BetaView from './components/BetaView';
+import ProdLaunchView from './components/ProdLaunchView';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -100,6 +101,8 @@ function App() {
         return <VoiceView />;
       case 'beta':
         return <BetaView />;
+      case 'prod-launch':
+        return <ProdLaunchView />;
       default:
         return <Dashboard />;
     }
