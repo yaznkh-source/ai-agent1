@@ -1,0 +1,32 @@
+{
+  "name": "AI Agency OS - 68 Agents, 292 Skills",
+  "short_name": "AI Agency OS",
+  "description": "Private AI Agency System - 68 specialized agents, 292 skills, pipelines, RAG, client portal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#8b5cf6",
+  "theme_color": "#8b5cf6",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "business", "developer"],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
+}

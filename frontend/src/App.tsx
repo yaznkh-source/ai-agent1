@@ -19,6 +19,8 @@ import LandingPageView from './components/LandingPageView';
 import AnalyticsView from './components/AnalyticsView';
 import MarketplaceView from './components/MarketplaceView';
 import RealtimeView from './components/RealtimeView';
+import AuditView from './components/AuditView';
+import TeamsView from './components/TeamsView';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -67,6 +69,10 @@ function App() {
         return <MarketplaceView />;
       case 'realtime':
         return <RealtimeView />;
+      case 'audit':
+        return <AuditView />;
+      case 'teams':
+        return <TeamsView />;
       default:
         return <Dashboard />;
     }
