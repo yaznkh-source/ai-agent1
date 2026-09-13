@@ -26,17 +26,21 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./ai_agency.db"
     
     # LLM Providers - Like Open WebUI supports multiple providers
-    OPENAI_API_KEY: Optional[str] = None
-    OPENAI_BASE_URL: str = "https://api.openai.com/v1"
+    # UnoRouter - Real provider $0 - https://api.unorouter.com/v1
+    OPENAI_API_KEY: Optional[str] = "sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR"
+    OPENAI_BASE_URL: str = "https://api.unorouter.com/v1"
+    
+    UNOROUTER_API_KEY: Optional[str] = "sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR"
+    UNOROUTER_BASE_URL: str = "https://api.unorouter.com/v1"
     
     ANTHROPIC_API_KEY: Optional[str] = None
     
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_ENABLED: bool = True
     
-    # Default models
-    DEFAULT_MODEL: str = "gpt-4o-mini"
-    ENABLED_MODELS: List[str] = ["gpt-4o-mini", "gpt-4o", "claude-3-5-sonnet", "llama3.1:8b"]
+    # Default models - UnoRouter models - Real $0
+    DEFAULT_MODEL: str = "claude-sonnet-5-thinking"
+    ENABLED_MODELS: List[str] = ["claude-sonnet-5-thinking", "gpt-4o-mini", "gpt-4o", "claude-3-5-sonnet", "llama3.1:8b"]
     
     # Memory & Vector DB
     CHROMA_PERSIST_DIR: str = "./chroma_db"
