@@ -92,6 +92,7 @@ export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
     { id: 'loops', label: 'حلقات طويلة', labelEn: 'Loops', icon: Workflow, track: 'D' },
     { id: 'curated-tools', label: 'أدوات منتقاة', labelEn: 'Curated Tools', icon: Wrench, track: 'D' },
     { id: 'voice', label: 'الصوت Whisper', labelEn: 'Voice Whisper', icon: Radio, track: 'D' },
+    { id: 'beta', label: 'بيتا 10 مجاناً', labelEn: 'Beta 10 Free', icon: Users2, track: 'B' },
   ];
 
   return (
