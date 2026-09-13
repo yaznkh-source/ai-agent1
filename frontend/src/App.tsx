@@ -15,6 +15,8 @@ import BillingView from './components/BillingView';
 import PipelineBuilderView from './components/PipelineBuilderView';
 import PipelineFlowBuilder from './components/PipelineFlowBuilder';
 import ClientPortalView from './components/ClientPortalView';
+import LandingPageView from './components/LandingPageView';
+import AnalyticsView from './components/AnalyticsView';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -55,6 +57,10 @@ function App() {
         return <PipelineFlowBuilder />;
       case 'client-portal':
         return <ClientPortalView />;
+      case 'landing':
+        return <LandingPageView setActiveView={setActiveView} />;
+      case 'analytics':
+        return <AnalyticsView />;
       default:
         return <Dashboard />;
     }
