@@ -1,0 +1,94 @@
+{
+  "dashboard": {
+    "title": "AI Agency OS - 68 Agents, 292 Skills - Monitoring",
+    "tags": ["ai-agency-os", "68-agents", "292-skills", "production"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Agents Executed - 68 Total",
+        "type": "stat",
+        "targets": [{ "expr": "sum(rate(agent_executions_total[5m]))", "legendFormat": "Agents/min" }],
+        "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 }
+      },
+      {
+        "id": 2,
+        "title": "Skills Used - 292 Total",
+        "type": "stat",
+        "targets": [{ "expr": "sum(rate(skill_usages_total[5m]))", "legendFormat": "Skills/min" }],
+        "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 }
+      },
+      {
+        "id": 3,
+        "title": "LLM Cost - $",
+        "type": "graph",
+        "targets": [
+          { "expr": "sum(rate(llm_cost_dollars[5m]))", "legendFormat": "Cost $/min" },
+          { "expr": "sum(rate(billing_revenue_dollars[5m]))", "legendFormat": "Revenue $/min" }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+      },
+      {
+        "id": 4,
+        "title": "Tasks - To Do / In Progress / Review / Done",
+        "type": "piechart",
+        "targets": [{ "expr": "sum by (status) (tasks_total)", "legendFormat": "{{status}}" }],
+        "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 }
+      },
+      {
+        "id": 5,
+        "title": "Projects - Active / Completed",
+        "type": "stat",
+        "targets": [
+          { "expr": "count(projects_status{status=\"active\"})", "legendFormat": "Active" },
+          { "expr": "count(projects_status{status=\"completed\"})", "legendFormat": "Completed" }
+        ],
+        "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 }
+      },
+      {
+        "id": 6,
+        "title": "Profitability - 88% Margin Target",
+        "type": "gauge",
+        "targets": [{ "expr": "(sum(billing_revenue_dollars) - sum(llm_cost_dollars)) / sum(billing_revenue_dollars) * 100", "legendFormat": "Margin %" }],
+        "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 }
+      },
+      {
+        "id": 7,
+        "title": "API Latency - p50 / p95 / p99",
+        "type": "graph",
+        "targets": [
+          { "expr": "histogram_quantile(0.5, rate(http_request_duration_seconds_bucket[5m]))", "legendFormat": "p50" },
+          { "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))", "legendFormat": "p95" },
+          { "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))", "legendFormat": "p99" }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 }
+      },
+      {
+        "id": 8,
+        "title": "WebSocket Connections - Realtime",
+        "type": "stat",
+        "targets": [{ "expr": "sum(websocket_connections)", "legendFormat": "Connections" }],
+        "gridPos": { "h": 8, "w": 6, "x": 12, "y": 16 }
+      },
+      {
+        "id": 9,
+        "title": "Audit Logs - Success Rate",
+        "type": "stat",
+        "targets": [{ "expr": "sum(rate(audit_logs_success_total[5m])) / sum(rate(audit_logs_total[5m])) * 100", "legendFormat": "Success %" }],
+        "gridPos": { "h": 8, "w": 6, "x": 18, "y": 16 }
+      },
+      {
+        "id": 10,
+        "title": "Billing - MRR $5K → $50K → $150K",
+        "type": "graph",
+        "targets": [
+          { "expr": "sum(billing_mrr_dollars)", "legendFormat": "MRR $" },
+          { "expr": "sum(billing_mrr_dollars) - sum(llm_cost_dollars)", "legendFormat": "Profit $" }
+        ],
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 }
+      }
+    ],
+    "time": { "from": "now-1h", "to": "now" },
+    "refresh": "5s"
+  }
+}

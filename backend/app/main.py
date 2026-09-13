@@ -10,7 +10,7 @@ import os
 
 from .core.config import settings
 from .core.database import init_db
-from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing, verification, marketplace, realtime, storage, audit, teams, zapier
+from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing, verification, marketplace, realtime, storage, audit, teams, zapier, hubspot
 from .core.auth import create_default_users
 
 # Initialize DB
@@ -59,6 +59,7 @@ app.include_router(storage.router)
 app.include_router(audit.router)
 app.include_router(teams.router)
 app.include_router(zapier.router)
+app.include_router(hubspot.router)
 
 @app.get("/")
 async def root():
