@@ -33,6 +33,8 @@ import BetaView from './components/BetaView';
 import ProdLaunchView from './components/ProdLaunchView';
 import MRR30KView from './components/MRR30KView';
 import MRR100KView from './components/MRR100KView';
+import EnterpriseView from './components/EnterpriseView';
+import MRR1MView from './components/MRR1MView';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -109,6 +111,10 @@ function App() {
         return <MRR30KView />;
       case 'mrr-100k':
         return <MRR100KView />;
+      case 'enterprise':
+        return <EnterpriseView />;
+      case 'mrr-1m':
+        return <MRR1MView />;
       default:
         return <Dashboard />;
     }
