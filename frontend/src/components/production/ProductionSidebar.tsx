@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { chatApi } from '../../lib/api';
 import { useChatStore } from '../../stores/chat';
-import { MessageSquare, Plus, Trash2, Bot, LayoutDashboard, Users, FileText, Settings, Shield, Sparkles, LogOut, Swords, Trophy } from 'lucide-react';
+import { MessageSquare, Plus, Trash2, Bot, LayoutDashboard, Users, FileText, Settings, Shield, Sparkles, LogOut, Swords, Trophy, Smartphone } from 'lucide-react';
 
 interface Props {
   activeView: string;
@@ -59,6 +59,7 @@ export default function ProductionSidebar({ activeView, setActiveView, isAdmin }
     { id: 'agents', label: 'الوكلاء', icon: Bot },
     { id: 'projects', label: 'المشاريع', icon: FileText },
     { id: 'agency', label: 'الوكالة', icon: Users },
+    { id: 'mobile', label: 'الجوال', icon: Smartphone },
   ];
 
   const adminMenu = isAdmin ? [

@@ -7,6 +7,7 @@ import ProductionProjects from './ProductionProjects';
 import AdminPanel from './AdminPanel';
 import AgentBattleArena from './AgentBattleArena';
 import AgentLeaderboard from './AgentLeaderboard';
+import MobileView from './MobileView';
 
 // نظام متكامل يعمل بشكل حقيقي مثل Manus و ChatGPT و Arena.ai
 // - واجهة نظيفة مثل Arena.ai — ليس 38 زر قبيح
@@ -81,6 +82,8 @@ export default function ProductionApp() {
         return <AgentBattleArena />;
       case 'leaderboard':
         return <AgentLeaderboard />;
+      case 'mobile':
+        return <MobileView />;
       case 'projects':
         return <ProductionProjects />;
       case 'agency':
