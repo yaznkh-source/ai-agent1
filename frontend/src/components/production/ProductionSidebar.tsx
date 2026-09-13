@@ -26,7 +26,7 @@ export default function ProductionSidebar({ activeView, setActiveView, isAdmin }
 
   const createNewChat = async () => {
     try {
-      const newChat = await chatApi.create({ title: 'محادثة جديدة', model: 'gpt-4o-mini' });
+      const newChat = await chatApi.create({ title: 'محادثة جديدة', model: 'gemini-flash-lite:free' });
       setChats([newChat, ...chats]);
       setCurrentChat(newChat);
       setMessages([]);

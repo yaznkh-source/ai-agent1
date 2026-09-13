@@ -162,7 +162,17 @@ Error: {str(e)[:200]}
         }
 
 async def chat_completions_stream_real(messages: List[Dict], model: str, temperature: float):
-    """Streaming حقيقي — مثل FastChat و ChatGPT و Claude و Gemini — SSE text/event-stream — Real UnoRouter https://api.unorouter.com/v1/chat/completions - Bearer sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR - gemini-flash-lite:free streaming true — يعمل فعلياً — ليس واجهة تافهة"""
+    """Streaming حقيقي — مثل FastChat و ChatGPT — SSE text/event-stream — Real UnoRouter gemini-flash-lite:free streaming true — يعمل فعلياً"""
+    model_mapping = {
+        "gpt-4o-mini": "gemini-flash-lite:free",
+        "gpt-4o": "gemini-flash-lite:free",
+        "claude-3-5-sonnet": "gemini-flash-lite:free",
+        "claude-sonnet-5-thinking": "gemini-flash-lite:free",
+        "claude-sonnet-4-5": "gemini-flash-lite:free",
+    }
+    if model in model_mapping:
+        model = model_mapping[model]
+    
     try:
         from ..core.config import settings
         import httpx
@@ -187,15 +197,13 @@ async def chat_completions_stream_real(messages: List[Dict], model: str, tempera
                 async for line in response.aiter_lines():
                     if line.startswith("data: "):
                         yield f"{line}\n\n"
-                        # Small delay to mimic real streaming
                         await asyncio.sleep(0.01)
                 yield "data: [DONE]\n\n"
                 return
     except Exception as e:
-        # Fallback to mock streaming - يعمل فعلياً حتى بدون API
-        print(f"⚠️ Real streaming failed: {e} - fallback to mock")
+        print(f"⚠️ Real streaming failed: {e} - fallback to mock - model {model}")
         last_user = next((m["content"] for m in reversed(messages) if m["role"] == "user"), "Hello")
-        full_content = f"🤖 AI Agency OS — Streaming — مثل FastChat و ChatGPT — Model: {model} — You said: {last_user[:100]} — يعمل فعلياً — Streaming SSE — Real API failed: {str(e)[:100]} — $0 — Fallback mock يعمل فعلياً"
+        full_content = f"🤖 AI Agency OS — Real API failed: {str(e)[:150]} — Fallback — Model: {model} — You said: {last_user[:100]} — جرب مرة أخرى مع gemini-flash-lite:free — يعمل فعلياً — $0"
         
         words = full_content.split()
         for word in words:

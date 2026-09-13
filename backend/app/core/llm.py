@@ -24,10 +24,24 @@ class OpenAIProvider(LLMProvider):
     
     async def chat_completion(self, messages: List[Dict], model: str, tools: List[Dict] = None, stream: bool = False, **kwargs) -> Dict[str, Any]:
         # Use real API if key exists - UnoRouter $0 - https://api.unorouter.com/v1/chat/completions - Bearer sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR
+        # Map old models to working free model - gemini-flash-lite:free tested working 2026-09-13 Windows
+        model_mapping = {
+            "gpt-4o-mini": "gemini-flash-lite:free",
+            "gpt-4o": "gemini-flash-lite:free",
+            "claude-3-5-sonnet": "gemini-flash-lite:free",
+            "claude-sonnet-5-thinking": "gemini-flash-lite:free",
+            "claude-sonnet-4-5": "gemini-flash-lite:free",
+            "claude-sonnet-4-5-thinking": "gemini-flash-lite:free",
+        }
+        original_model = model
+        if model in model_mapping:
+            print(f"🔄 Mapping model {model} -> {model_mapping[model]} - Working free model")
+            model = model_mapping[model]
+        
         # If no API key, return mock response for demo
         api_key = self.api_key or settings.OPENAI_API_KEY or settings.UNOROUTER_API_KEY
         if not api_key or api_key in ["sk-fake", "sk-fake-key-for-demo", "sk-your-openai-key"]:
-            return self._mock_response(messages, model, tools)
+            return self._mock_response(messages, original_model, tools)
         
         headers = {
             "Authorization": f"Bearer {api_key}",

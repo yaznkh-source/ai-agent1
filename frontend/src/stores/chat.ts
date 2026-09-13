@@ -28,7 +28,7 @@ export const useChatStore = create<ChatState>((set) => ({
   currentChat: null,
   messages: [],
   selectedAgent: null,
-  selectedModel: 'gpt-4o-mini',
+  selectedModel: 'gemini-flash-lite:free',
   isLoading: false,
   setChats: (chats) => set({ chats }),
   setCurrentChat: (chat) => set({ currentChat: chat }),
