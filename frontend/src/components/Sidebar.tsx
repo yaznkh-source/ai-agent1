@@ -87,6 +87,10 @@ export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
     { id: 'integrations', label: 'التكاملات', labelEn: 'Integrations', icon: Plug, track: 'C' },
     { id: 'privacy', label: 'الخصوصية', labelEn: 'Privacy', icon: Shield, track: 'B' },
     { id: 'terms', label: 'الشروط', labelEn: 'Terms', icon: FileText, track: 'B' },
+    { id: 'free-domain', label: 'نطاق مجاني', labelEn: 'Free Domain', icon: Globe, track: 'D' },
+    { id: 'free-llm', label: 'نماذج مجانية', labelEn: 'Free LLM', icon: Brain, track: 'D' },
+    { id: 'loops', label: 'حلقات طويلة', labelEn: 'Loops', icon: Workflow, track: 'D' },
+    { id: 'curated-tools', label: 'أدوات منتقاة', labelEn: 'Curated Tools', icon: Wrench, track: 'D' },
   ];
 
   return (

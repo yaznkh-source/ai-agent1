@@ -24,6 +24,10 @@ import TeamsView from './components/TeamsView';
 import ZapierView from './components/ZapierView';
 import PrivacyPolicyView from './components/PrivacyPolicyView';
 import TermsView from './components/TermsView';
+import FreeDomainView from './components/FreeDomainView';
+import FreeLLMView from './components/FreeLLMView';
+import LoopsView from './components/LoopsView';
+import CuratedToolsView from './components/CuratedToolsView';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -82,6 +86,14 @@ function App() {
         return <PrivacyPolicyView />;
       case 'terms':
         return <TermsView />;
+      case 'free-domain':
+        return <FreeDomainView />;
+      case 'free-llm':
+        return <FreeLLMView />;
+      case 'loops':
+        return <LoopsView />;
+      case 'curated-tools':
+        return <CuratedToolsView />;
       default:
         return <Dashboard />;
     }
