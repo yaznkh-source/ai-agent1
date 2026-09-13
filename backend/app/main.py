@@ -12,7 +12,7 @@ import os
 from .core.config import settings
 from .core.database import init_db
 from .core.swagger import openapi_custom_info, swagger_custom_css
-from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing, billing_real, verification, marketplace, realtime, storage, audit, teams, zapier, hubspot, hubspot_real, slack_real, monitoring
+from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing, billing_real, verification, marketplace, realtime, storage, audit, teams, zapier, hubspot, hubspot_real, slack_real, monitoring, gdpr, backup, metrics
 from .core.auth import create_default_users
 
 # Task A4: Rate limiting - slowapi
@@ -67,7 +67,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers - Track A-D
+# Include routers - Track A-D + B (GDPR, Backup, Metrics)
 app.include_router(auth.router)
 app.include_router(chat.router)
 app.include_router(agents.router)
@@ -93,6 +93,9 @@ app.include_router(hubspot.router)
 app.include_router(hubspot_real.router)
 app.include_router(slack_real.router)
 app.include_router(monitoring.router)
+app.include_router(gdpr.router)
+app.include_router(backup.router)
+app.include_router(metrics.router)
 
 @app.get("/")
 async def root():

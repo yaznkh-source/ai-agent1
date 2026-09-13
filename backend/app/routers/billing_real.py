@@ -24,21 +24,38 @@ webhook_events = []
 
 @router.get("/")
 async def billing_real_home():
-    # Task A5: Honest reality field - was misleading "Real", now MOCK with explanation
+    # Task A5 + B6: Honest reality field + real SDK when available
     from ..core.config import settings
     is_prod = settings.ENV == "production"
+    
+    # Check if stripe SDK available - Task B6
+    stripe_available = False
+    try:
+        import stripe
+        stripe_available = True
+    except ImportError:
+        stripe_available = False
+    
+    reality = "MOCK_WITH_REAL_INTENDED_CODE"
+    if stripe_available and STRIPE_SECRET_KEY and not STRIPE_SECRET_KEY.startswith("sk_test_123") and STRIPE_SECRET_KEY.startswith("sk_test_"):
+        reality = "REAL_TEST_MODE - stripe SDK installed, sk_test_ key, real Checkout in test mode"
+    elif stripe_available and STRIPE_SECRET_KEY.startswith("sk_live_"):
+        reality = "REAL_LIVE_MODE - stripe SDK installed, sk_live_ key, real billing"
+    
     return {
-        "integration": "Stripe Mock (Real-API-Intended) - No Stripe SDK, fake URL #mock - Code exists, execution mock - Task A5 fix",
-        "reality": "MOCK_WITH_REAL_INTENDED_CODE",
+        "integration": "Stripe Mock (Real-API-Intended) - No Stripe SDK, fake URL #mock - Code exists, execution mock - Task A5 fix - Task B6 real SDK if installed",
+        "reality": reality,
+        "stripe_sdk_installed": stripe_available,
         "real_implementation_needed": [
             "pip install stripe",
             "stripe.checkout.Session.create(price=..., success_url, cancel_url) - real call",
             "stripe.Webhook.construct_event(payload, sig, secret) - real verification",
             "stripe.billing_portal.Session.create(customer=...) - real portal",
             "Persist subscription in DB table, not in-memory list",
-            "Current code generates mock URL https://checkout.stripe.com/c/pay/{uuid}#mock and returns would_do"
+            "Current code generates mock URL https://checkout.stripe.com/c/pay/{uuid}#mock and returns would_do - unless stripe SDK installed + real sk_test_ key"
         ],
         "security_fix_A3": "In production, test webhook secrets (whsec_test_123) are rejected, missing Stripe-Signature rejected - Task A3 fix",
+        "task_B6": "If stripe SDK installed + sk_test_ key, will use real Stripe Checkout test mode - $0 cost, test card 4242 4242 4242 4242",
         "mode": "test" if STRIPE_SECRET_KEY.startswith("sk_test") else "live",
         "env": settings.ENV,
         "webhook_secret_configured": bool(os.getenv("STRIPE_WEBHOOK_SECRET")),
@@ -81,7 +98,7 @@ async def billing_real_home():
 
 @router.post("/webhook")
 async def stripe_webhook(request: Request, stripe_signature: str = Header(None, alias="Stripe-Signature")):
-    # Task A3: Security fix - Real Stripe webhook handler with proper prod checks
+    # Task A3 + B6: Security fix + real SDK verification when available
     from ..core.config import settings
     payload = await request.body()
     
@@ -91,30 +108,40 @@ async def stripe_webhook(request: Request, stripe_signature: str = Header(None, 
             raise HTTPException(status_code=400, detail="🔴 SECURITY: Test webhook secret (whsec_test_...) not allowed in production. Set real whsec_... from Stripe Dashboard.")
         if not stripe_signature:
             raise HTTPException(status_code=400, detail="🔴 SECURITY: Missing Stripe-Signature header - required in production")
-        # In production, would do real verification:
-        # stripe.Webhook.construct_event(payload, stripe_signature, STRIPE_WEBHOOK_SECRET)
-        # For now, still mock but with security checks
         print(f"🔒 Production webhook: signature present, secret not test - would verify real in full implementation")
     
-    # Verify signature if webhook secret configured
+    # Verify signature - Task B6: try real stripe SDK if available
     verified = False
-    if STRIPE_WEBHOOK_SECRET and stripe_signature and not STRIPE_WEBHOOK_SECRET.startswith("whsec_test"):
-        try:
-            # Real verification: https://stripe.com/docs/webhooks/signatures
-            # import stripe; stripe.Webhook.construct_event(payload, stripe_signature, STRIPE_WEBHOOK_SECRET)
-            # For mock, we skip real verification if test secret
-            verified = True  # In production, verify real - Task A3: now with prod checks above
-        except Exception as e:
-            raise HTTPException(400, f"Webhook signature verification failed: {e}")
-    else:
-        # Test mode - skip verification or mock verify
-        # Task A3: In dev, allow mock verification, but log warning
-        if settings.ENV == "production":
-            # Already rejected test secrets above, so this branch shouldn't happen in prod
-            raise HTTPException(400, "Test secret not allowed in production")
-        verified = True
-        if settings.ENV != "production":
-            print("⚠️ Dev mode: Mock verification - not for production")
+    stripe_event = None
+    try:
+        import stripe
+        # Real verification if we have real secret and signature
+        if STRIPE_WEBHOOK_SECRET and stripe_signature and not STRIPE_WEBHOOK_SECRET.startswith("whsec_test_123"):
+            try:
+                stripe_event = stripe.Webhook.construct_event(payload, stripe_signature, STRIPE_WEBHOOK_SECRET)
+                verified = True
+                print(f"✅ Real Stripe webhook verified via stripe SDK: {stripe_event.get('type')}")
+            except Exception as e:
+                # If construct_event fails, still try to parse payload for dev
+                if settings.ENV == "production":
+                    raise HTTPException(400, f"Webhook signature verification failed: {e}")
+                else:
+                    print(f"⚠️ Stripe verification failed in dev (expected if test payload): {e} - using mock verification")
+                    verified = True
+        else:
+            verified = True
+            if settings.ENV != "production":
+                print("⚠️ Dev mode: Mock verification - not for production (stripe SDK available but test secret)")
+    except ImportError:
+        # No stripe SDK - mock verification
+        if STRIPE_WEBHOOK_SECRET and stripe_signature and not STRIPE_WEBHOOK_SECRET.startswith("whsec_test"):
+            verified = True
+        else:
+            if settings.ENV == "production":
+                raise HTTPException(400, "Test secret not allowed in production")
+            verified = True
+            if settings.ENV != "production":
+                print("⚠️ Dev mode: Mock verification - stripe SDK not installed (pip install stripe for real)")
     
     try:
         data = json.loads(payload) if payload else {}
@@ -180,7 +207,7 @@ async def list_webhook_events(limit: int = 20):
 
 @router.post("/subscribe")
 async def create_checkout_session(payload: Dict):
-    # Create Stripe Checkout session for subscription
+    # Task B6: Real Stripe SDK if available + sk_test_ key, else mock
     price_id = payload.get("price_id", "price_pro_199")
     customer_email = payload.get("customer_email", "customer@example.com")
     success_url = payload.get("success_url", "https://ai-agency.os/success?session_id={CHECKOUT_SESSION_ID}")
@@ -196,6 +223,43 @@ async def create_checkout_session(payload: Dict):
     }
     amount = price_map.get(price_id, 19900)
     
+    # Try real Stripe SDK if available and real test key
+    try:
+        import stripe
+        if STRIPE_SECRET_KEY and STRIPE_SECRET_KEY.startswith("sk_test_") and not STRIPE_SECRET_KEY.startswith("sk_test_123"):
+            stripe.api_key = STRIPE_SECRET_KEY
+            # Real Checkout Session in test mode
+            try:
+                real_session = stripe.checkout.Session.create(
+                    customer_email=customer_email,
+                    line_items=[{"price": price_id, "quantity": 1}] if price_id.startswith("price_") else [{"price_data": {"currency": "usd", "unit_amount": amount, "product_data": {"name": f"AI Agency OS - {price_id}"}}, "quantity": 1}],
+                    mode="subscription" if amount > 0 else "payment",
+                    success_url=success_url,
+                    cancel_url=cancel_url
+                )
+                return {
+                    "id": real_session.id,
+                    "object": "checkout.session",
+                    "customer_email": customer_email,
+                    "amount_total": amount,
+                    "currency": "usd",
+                    "status": real_session.status,
+                    "url": real_session.url,
+                    "success_url": success_url,
+                    "cancel_url": cancel_url,
+                    "price_id": price_id,
+                    "created": datetime.utcnow().isoformat(),
+                    "mode": "test",
+                    "reality": "REAL_TEST_MODE - stripe SDK real Checkout Session",
+                    "note": "Real Stripe Checkout - test mode - use card 4242 4242 4242 4242"
+                }
+            except Exception as e:
+                print(f"⚠️ Real Stripe Checkout failed (expected if price_id invalid): {e} - falling back to mock")
+                # Fall through to mock
+    except ImportError:
+        pass
+    
+    # Mock fallback
     session = {
         "id": f"cs_{uuid.uuid4().hex[:24]}",
         "object": "checkout.session",
@@ -208,6 +272,7 @@ async def create_checkout_session(payload: Dict):
         "cancel_url": cancel_url,
         "price_id": price_id,
         "created": datetime.utcnow().isoformat(),
+        "reality": "MOCK_WITH_REAL_INTENDED_CODE - Install stripe SDK + set real sk_test_ key for real Checkout",
         "would_do": [
             f"Create Stripe Checkout session via stripe.checkout.Session.create with price {price_id} amount ${amount/100}",
             f"Return URL {f'https://checkout.stripe.com/c/pay/...'} - redirect user to this URL",
@@ -219,7 +284,7 @@ async def create_checkout_session(payload: Dict):
     
     if STRIPE_SECRET_KEY.startswith("sk_test"):
         session["mode"] = "test"
-        session["note"] = "Test mode - use Stripe test card 4242 4242 4242 4242, any future date, any CVC, any zip"
+        session["note"] = "Test mode - use Stripe test card 4242 4242 4242 4242, any future date, any CVC, any zip - Or install stripe SDK + set real sk_test_ key for real test mode"
     else:
         session["mode"] = "live"
     
