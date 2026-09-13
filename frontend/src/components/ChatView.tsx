@@ -37,7 +37,9 @@ export default function ChatView() {
         agent_id: selectedAgent
       });
       setCurrentChat(newChat);
-      setChats((prev: any) => [newChat, ...prev]);
+      // Get current chats from store and prepend new chat
+      const currentChats = useChatStore.getState().chats;
+      setChats([newChat, ...currentChats]);
       return newChat;
     }
     return currentChat;

@@ -41,7 +41,7 @@ export default function AnalyticsView() {
 
   const evalTrend = evalRuns.slice(-10).map((r:any, i:number) => ({
     name: `Run ${i+1}`,
-    accuracy: (r.accuracy*100).toFixed(1),
+    accuracy: parseFloat((r.accuracy*100).toFixed(1)),
   }));
 
   if (evalTrend.length === 0) {
@@ -73,7 +73,7 @@ export default function AnalyticsView() {
           </div>
           <div className="bg-white rounded-2xl border p-5">
             <div className="text-sm text-zinc-500">تكلفة LLM</div>
-            <div className="text-2xl font-bold">${Object.values(costs||{}).reduce((acc:any, c:any)=>acc+(c.cost||0),0).toFixed(2) || '23.45'}</div>
+            <div className="text-2xl font-bold">${(Object.values(costs||{} as any) as any[]).reduce((acc:number, c:any)=>acc+((c as any)?.cost||0),0).toFixed(2) || '23.45'}</div>
             <div className="text-xs text-zinc-500 mt-1">هذا الشهر</div>
           </div>
           <div className="bg-white rounded-2xl border p-5 bg-gradient-to-br from-violet-600 to-indigo-600 text-white">

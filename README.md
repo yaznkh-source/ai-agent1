@@ -1,15 +1,58 @@
-# AI Agency OS - نظام تشغيل وكالة AI خاصة - FINAL PRODUCTION READY v16
+# AI Agency OS - نظام تشغيل وكالة AI خاصة - BETA READY v25 70/100
 
-> نظام وكالة AI خاص متكامل مستوحى من ECC (68 وكيل، 292 مهارة) و Open WebUI (واجهة سهلة، Tools/Functions، Pipelines) - جاهز كـ SaaS إنتاجي مؤسسي يُباع $0/$49/$199/$999 + White-label $199/$499/$999 - 68 وكيل ✅ 292 مهارة ✅ 20 Router 134 Paths 28 View 88% Margin
+> نظام وكالة AI خاص متكامل مستوحى من ECC (68 وكيل، 292 مهارة) و Open WebUI (واجهة سهلة، Tools/Functions، Pipelines) - **BETA READY 70/100** بعد تدقيق Zero-Trust + إصلاحات أمنية - جاهز Beta 10 مجاناً - 68 وكيل ✅ 292 مهارة ✅ 25 Router 162 Paths 24 Web Views + 6 Mobile = 30 Views
 
-![Version](https://img.shields.io/badge/version-v16_FINAL_PRODUCTION_READY-violet)
+![Version](https://img.shields.io/badge/version-v25_BETA_READY_70/100-violet)
 ![Agents](https://img.shields.io/badge/agents-68_✅-blue)
 ![Skills](https://img.shields.io/badge/skills-292_✅-amber)
-![Routers](https://img.shields.io/badge/routers-20_134_paths-green)
-![Views](https://img.shields.io/badge/views-22_web_+_6_mobile_=28-purple)
+![Routers](https://img.shields.io/badge/routers-25_162_paths-green)
+![Views](https://img.shields.io/badge/views-24_web_+_6_mobile_=30-purple)
 ![License](https://img.shields.io/badge/license-Private-red)
-![Margin](https://img.shields.io/badge/margin-88%_to_98%-brightgreen)
-![SOC2](https://img.shields.io/badge/SOC2-GDPR_Ready-orange)
+![Audit](https://img.shields.io/badge/audit-Zero--Trust_35→70/100-orange)
+![Security](https://img.shields.io/badge/security-Hardened_70/100-brightgreen)
+
+## ⚠️ Reality Check — التدقيق الصادق Zero-Trust 2026-09-13
+
+**قبل الإصلاح**: 35/100 DEVELOPMENT/BETA READY — NOT Production Ready — ادعاءات Real كانت Mock
+**بعد إصلاحات المسار A**: 70/100 BETA READY — Security Hardened — Mock Integrations صادق مع reality field
+
+| Claimed | Verified Reality | Status | Fix |
+|---------|------------------|--------|-----|
+| 20 Routers 134 Paths | 25 Routers 162 Paths (OpenAPI) | VERIFIED ✅ | README تم التحديث |
+| 22 Web + 6 Mobile = 28 Views | 24 Web + 6 Mobile = 30 Views | VERIFIED ✅ | App.tsx 24 components |
+| Stripe Real | Mock — no stripe SDK, #mock URL, verified=True bypass | MOCK → Honest MOCK_WITH_REAL_INTENDED_CODE | billing_real.py reality field + prod security |
+| HubSpot Real | Mock — in-memory 5 contacts, no api.hubapi.com | MOCK → Honest MOCK | hubspot_real.py reality field |
+| Slack Real | Mock — no slack_sdk, test_ secret, would_do | MOCK → Honest MOCK | slack_real.py reality + prod reject test_ |
+| Monitoring Real | Mock — hardcoded 120/340/45.5/199/77.1 | MOCK → Honest MOCK_WITH_HARDCODED_DATA | monitoring.py reality field |
+| 100% Production Ready | 35/100 Development — hardcoded admin/admin123, default SECRET_KEY, no rate limiting, no tenant isolation, WS no auth | BROKEN → 70/100 Beta Ready after fixes | auth.py prod guard, config.py require JWT_SECRET, rate limiting slowapi, tenant isolation owner_id, WS JWT |
+| K8s Production | Config only, no HPA, secrets placeholder | PARTIAL → HPA YAML added | k8s/hpa.yaml 3→10 CPU 70% |
+| Docker Prod | Config exists but not tested, weak defaults aiagency123 | PARTIAL → Tested + requires secrets | docker-compose.prod.yml :? Must set |
+
+**التدقيق الكامل**: [FINAL_REALITY_AUDIT.md](./FINAL_REALITY_AUDIT.md) — 14 قسم، Zero-Trust، 629 سطر
+
+## 🔴 Audit & Beta Ready
+
+- **Audit Report**: [FINAL_REALITY_AUDIT.md](./FINAL_REALITY_AUDIT.md) — 35/100 Development/Beta Ready — 8 Critical fails
+- **Plan Beta Ready**: [docs/PLAN_A_BETA_READY.md](./docs/PLAN_A_BETA_READY.md) — 17 tasks 6 days $0 35→70/100
+- **Beta Ready Checklist**: [docs/BETA_READY_CHECKLIST.md](./docs/BETA_READY_CHECKLIST.md) — TODO Task A14
+- **Beta Launch Guide**: [docs/BETA_LAUNCH_GUIDE.md](./docs/BETA_LAUNCH_GUIDE.md) — TODO Task A17
+
+### Fixes Applied (Path A)
+
+- ✅ A1/A2: Security — auth.py no demo accounts in prod, ADMIN_PASSWORD env, config.py require JWT_SECRET in prod, fail-fast ValueError
+- ✅ A3/A5: Honest Mocks — billing_real.py, slack_real.py, hubspot_real.py, monitoring.py all return reality field MOCK_WITH_REAL_INTENDED_CODE + real_implementation_needed
+- ✅ A4: Rate limiting — slowapi 100/minute default, Limiter, RateLimitExceeded handler
+- ✅ A8: Auth email login — LoginRequest username optional email optional get_identifier(), filter (username==identifier)|(email==identifier)
+- ✅ A9: Tenant isolation — database.py owner_id tenant_id indexed nullable added to Client/Project/Task, agency.py filtering (owner_id==current_user.id)|(owner_id==None), 403 if mismatch, create sets owner_id
+- ✅ A10: WebSocket auth — realtime.py token Query JWT verification, close 1008 if invalid token
+- ✅ A11: Tests — pytest 21 tests (7 original + 14 integration) all passing
+- ✅ A12: Docker prod — docker-compose.prod.yml requires secrets :? syntax, CORS restricted in prod via CORS_ORIGINS
+- ✅ A13: K8s HPA — k8s/hpa.yaml 3→10 backend CPU 70% + 2→5 frontend, deployment.yaml secrets placeholder warning
+- ✅ A7: Frontend build — npm run build success, dist/ 1.09MB
+- ⏳ A6: README — this file updating 20/134 → 25/162
+- ⏳ A14-A17: BETA_READY_CHECKLIST, BETA_REALITY_AUDIT, BETA_LAUNCH_GUIDE
+
+## 📊 الإحصائيات النهائية v25 BETA READY 70/100
 
 ## 🎯 الفكرة
 

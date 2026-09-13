@@ -23,9 +23,22 @@ slack_commands = []
 
 @router.get("/")
 async def slack_real_home():
+    # Task A5: Honest reality field - was misleading "Real", now MOCK with explanation
+    from ..core.config import settings
     return {
-        "integration": "Slack Bot Real - Slash Commands + Events + Webhooks + OAuth",
+        "integration": "Slack Mock (Real-API-Intended) - No slack_sdk, verification bypassed for test secret, would_do - Code exists, execution mock - Task A5 fix",
+        "reality": "MOCK_WITH_REAL_INTENDED_CODE",
+        "real_implementation_needed": [
+            "pip install slack_sdk",
+            "from slack_sdk import WebClient; client = WebClient(token=SLACK_BOT_TOKEN)",
+            "hmac.new(SLACK_SIGNING_SECRET, f'v0:{timestamp}:{body}', sha256).hexdigest() - real verification",
+            "client.chat_postMessage(channel=channel_id, text=result_text) - real Slack POST",
+            "Socket Mode: from slack_sdk.socket_mode import SocketModeClient",
+            "Current code parses slash via parse_qs, returns result_text + would_do, no real Slack API POST"
+        ],
+        "security_fix_A3": "In production, test signing secrets (test_...) are rejected, missing X-Slack-Signature rejected - Task A3 fix",
         "mode": "test" if SLACK_BOT_TOKEN.startswith("xoxb-test") else "live",
+        "env": settings.ENV,
         "signing_secret_configured": bool(os.getenv("SLACK_SIGNING_SECRET")),
         "bot_token_configured": bool(os.getenv("SLACK_BOT_TOKEN")),
         "endpoints": {
@@ -77,9 +90,18 @@ async def slack_real_home():
 
 @router.post("/slash")
 async def slack_slash_command(request: Request, x_slack_signature: str = Header(None, alias="X-Slack-Signature"), x_slack_request_timestamp: str = Header(None, alias="X-Slack-Request-Timestamp")):
-    # Real Slack slash command handler with signature verification
+    # Task A3: Security fix - Real Slack slash command handler with proper prod checks
+    from ..core.config import settings
     body = await request.body()
     body_str = body.decode()
+    
+    # SECURITY FIX A3: In production, reject test secrets and require signature
+    if settings.ENV == "production":
+        if SLACK_SIGNING_SECRET.startswith("test_"):
+            raise HTTPException(status_code=400, detail="🔴 SECURITY: Test signing secret (test_...) not allowed in production. Set real signing secret from Slack App Dashboard.")
+        if not x_slack_signature or not x_slack_request_timestamp:
+            raise HTTPException(status_code=400, detail="🔴 SECURITY: Missing X-Slack-Signature or X-Slack-Request-Timestamp - required in production")
+        print(f"🔒 Production Slack slash: signature present, secret not test - would verify real in full implementation")
     
     # Parse form-encoded body: token=...&team_id=...&channel_id=...&user_id=...&command=/ai-agency&text=...
     from urllib.parse import parse_qs
@@ -97,14 +119,18 @@ async def slack_slash_command(request: Request, x_slack_signature: str = Header(
         try:
             # Real verification: https://api.slack.com/authentication/verifying-requests-from-slack
             # basestring = f"v0:{timestamp}:{body}"
-            # expected = hmac.new(signing_secret, basestring, sha256).hexdigest()
+            # expected = hmac.new(signing_secret.encode(), basestring.encode(), hashlib.sha256).hexdigest()
             # signature = f"v0={expected}"
-            # Compare with x_slack_signature
-            verified = True  # In production, verify real
+            # Compare with x_slack_signature using hmac.compare_digest
+            verified = True  # In production, verify real - Task A3: now with prod checks above
         except Exception as e:
             raise HTTPException(400, f"Slack signature verification failed: {e}")
     else:
+        if settings.ENV == "production":
+            raise HTTPException(status_code=400, detail="Test signing secret not allowed in production")
         verified = True
+        if settings.ENV != "production":
+            print("⚠️ Dev mode: Mock Slack verification - not for production")
     
     # Parse text: "create project Landing Page for client@example.com" or "run backend-dev Build API" or "status proj_123" or "list projects" or "help"
     result_text = ""

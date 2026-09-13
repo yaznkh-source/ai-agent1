@@ -139,11 +139,24 @@ spec:
       storage: 10Gi
 
 ---
+# Task A2: Security fix - Secrets should be created via kubectl create secret, not hardcoded
+# Use: kubectl create secret generic ai-agency-secrets --from-literal=openai-api-key=sk-... --from-literal=secret-key=$(openssl rand -hex 32) --from-literal=postgres-password=$(openssl rand -base64 12) --from-literal=jwt-secret=$(openssl rand -hex 32)
+# For prod, don't commit real secrets - this file is example only with placeholders that must be replaced
+# Task A13: HPA now in separate hpa.yaml file
+---
 apiVersion: v1
 kind: Secret
 metadata:
   name: ai-agency-secrets
+  labels:
+    app: ai-agency
 type: Opaque
+# SECURITY: In production, create secrets via kubectl, not via stringData in git
+# Example: kubectl create secret generic ai-agency-secrets --from-literal=openai-api-key=sk-real-... --from-literal=secret-key=$(openssl rand -hex 32)
+# For this example file, we use placeholders that MUST be replaced - Task A2 fix
 stringData:
-  openai-api-key: "sk-..."
-  secret-key: "change-me-in-production"
+  openai-api-key: "sk-PLACEHOLDER-MUST-REPLACE-via-kubectl-create-secret"
+  secret-key: "PLACEHOLDER-MUST-REPLACE-via-openssl-rand-hex-32"
+  postgres-password: "PLACEHOLDER-MUST-REPLACE"
+  jwt-secret: "PLACEHOLDER-MUST-REPLACE-via-openssl-rand-hex-32"
+  grafana-password: "PLACEHOLDER-MUST-REPLACE"

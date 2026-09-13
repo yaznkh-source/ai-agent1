@@ -1,11 +1,12 @@
 """
 AI Agency OS - Main FastAPI Application
 Combines ECC + Open WebUI concepts into unified AI Agency System
+Task A4: Rate limiting + Task A2: Security fix
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 import os
 
 from .core.config import settings
@@ -13,6 +14,17 @@ from .core.database import init_db
 from .core.swagger import openapi_custom_info, swagger_custom_css
 from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing, billing_real, verification, marketplace, realtime, storage, audit, teams, zapier, hubspot, hubspot_real, slack_real, monitoring
 from .core.auth import create_default_users
+
+# Task A4: Rate limiting - slowapi
+try:
+    from slowapi import Limiter, _rate_limit_exceeded_handler
+    from slowapi.util import get_remote_address
+    from slowapi.errors import RateLimitExceeded
+    limiter = Limiter(key_func=get_remote_address, default_limits=["100/minute"])
+    print("✅ Rate limiting enabled via slowapi - 100/minute default")
+except ImportError:
+    limiter = None
+    print("⚠️ slowapi not installed - rate limiting disabled (install via pip install slowapi)")
 
 # Initialize DB
 init_db()
@@ -32,10 +44,24 @@ app = FastAPI(
     openapi_url="/api/openapi.json"
 )
 
-# CORS - Critical for Open WebUI-like preview support
+# Task A4: Add rate limiter to app
+if limiter:
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS - Critical for Open WebUI-like preview support - Task A2: Security - restrict in prod
+# In production, should be specific origins, not "*"
+if settings.ENV == "production":
+    # In prod, use specific origins from env or default to ai-agency.os
+    allowed_origins = os.getenv("CORS_ORIGINS", "https://ai-agency.os,https://api.ai-agency.os,https://docs.ai-agency.os").split(",")
+    print(f"🔒 Production CORS: {allowed_origins}")
+else:
+    allowed_origins = settings.CORS_ORIGINS
+    print(f"⚠️ Dev CORS: {allowed_origins} - open for preview")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

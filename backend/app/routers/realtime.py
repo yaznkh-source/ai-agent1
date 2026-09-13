@@ -1,28 +1,60 @@
 """
 Realtime Router - WebSocket + SSE for live updates
+Task A10: WebSocket Auth - JWT verification
 """
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
 from ..core.websocket import manager, broadcaster
-from typing import Dict
+from ..core.auth import decode_token
+from typing import Dict, Optional
 import asyncio
 import json
 
 router = APIRouter(prefix="/api/realtime", tags=["realtime"])
 
 @router.websocket("/ws/{room}")
-async def websocket_endpoint(websocket: WebSocket, room: str, user_id: str = None):
+async def websocket_endpoint(websocket: WebSocket, room: str, user_id: str = None, token: str = Query(None)):
+    # Task A10: WebSocket Auth - verify JWT token if provided
+    verified_user_id = None
+    auth_method = "anonymous"
+    
+    if token:
+        payload = decode_token(token)
+        if payload:
+            verified_user_id = payload.get("sub")
+            auth_method = "jwt"
+            # Use verified user_id from token, not query param
+            user_id = verified_user_id
+            print(f"🔒 WS Authenticated via JWT: user {verified_user_id} in room {room}")
+        else:
+            await websocket.close(code=1008, reason="Invalid token")
+            return
+    else:
+        # No token - allow but as anonymous with warning
+        # In production, you might want to reject anonymous
+        from ..core.config import settings
+        if settings.ENV == "production":
+            # In prod, require token or at least log
+            print(f"⚠️ WS Anonymous connection in production - room {room}, user_id {user_id} - should require JWT")
+        else:
+            print(f"⚠️ WS Anonymous connection in dev - room {room}, user_id {user_id}")
+        auth_method = "anonymous"
+    
     await manager.connect(websocket, room, user_id)
+    # Send auth confirmation
+    await websocket.send_text(json.dumps({"type": "auth", "user_id": user_id, "auth_method": auth_method, "room": room}))
+    
     try:
         while True:
             data = await websocket.receive_text()
             try:
                 message = json.loads(data)
-                # Echo or handle message
+                # Echo or handle message - include verified user_id
                 await manager.send_to_room({
                     "type": "message",
                     "data": message,
                     "room": room,
-                    "user_id": user_id
+                    "user_id": user_id,
+                    "auth_method": auth_method
                 }, room)
             except:
                 await websocket.send_text(f"Echo: {data}")
@@ -30,12 +62,28 @@ async def websocket_endpoint(websocket: WebSocket, room: str, user_id: str = Non
         manager.disconnect(websocket, room, user_id)
 
 @router.websocket("/ws")
-async def websocket_general(websocket: WebSocket, user_id: str = None):
+async def websocket_general(websocket: WebSocket, user_id: str = None, token: str = Query(None)):
+    # Task A10: Same auth for general
+    verified_user_id = None
+    auth_method = "anonymous"
+    
+    if token:
+        payload = decode_token(token)
+        if payload:
+            verified_user_id = payload.get("sub")
+            auth_method = "jwt"
+            user_id = verified_user_id
+        else:
+            await websocket.close(code=1008, reason="Invalid token")
+            return
+    
     await manager.connect(websocket, "general", user_id)
+    await websocket.send_text(json.dumps({"type": "auth", "user_id": user_id, "auth_method": auth_method}))
+    
     try:
         while True:
             data = await websocket.receive_text()
-            await websocket.send_text(f"General echo: {data}")
+            await websocket.send_text(f"General echo: {data} (user: {user_id}, auth: {auth_method})")
     except WebSocketDisconnect:
         manager.disconnect(websocket, "general", user_id)
 

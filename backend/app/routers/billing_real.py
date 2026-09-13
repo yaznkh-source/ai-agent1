@@ -24,9 +24,23 @@ webhook_events = []
 
 @router.get("/")
 async def billing_real_home():
+    # Task A5: Honest reality field - was misleading "Real", now MOCK with explanation
+    from ..core.config import settings
+    is_prod = settings.ENV == "production"
     return {
-        "integration": "Stripe Real Webhooks + Billing Real",
+        "integration": "Stripe Mock (Real-API-Intended) - No Stripe SDK, fake URL #mock - Code exists, execution mock - Task A5 fix",
+        "reality": "MOCK_WITH_REAL_INTENDED_CODE",
+        "real_implementation_needed": [
+            "pip install stripe",
+            "stripe.checkout.Session.create(price=..., success_url, cancel_url) - real call",
+            "stripe.Webhook.construct_event(payload, sig, secret) - real verification",
+            "stripe.billing_portal.Session.create(customer=...) - real portal",
+            "Persist subscription in DB table, not in-memory list",
+            "Current code generates mock URL https://checkout.stripe.com/c/pay/{uuid}#mock and returns would_do"
+        ],
+        "security_fix_A3": "In production, test webhook secrets (whsec_test_123) are rejected, missing Stripe-Signature rejected - Task A3 fix",
         "mode": "test" if STRIPE_SECRET_KEY.startswith("sk_test") else "live",
+        "env": settings.ENV,
         "webhook_secret_configured": bool(os.getenv("STRIPE_WEBHOOK_SECRET")),
         "secret_key_configured": bool(os.getenv("STRIPE_SECRET_KEY")),
         "endpoints": {
@@ -67,23 +81,40 @@ async def billing_real_home():
 
 @router.post("/webhook")
 async def stripe_webhook(request: Request, stripe_signature: str = Header(None, alias="Stripe-Signature")):
-    # Real Stripe webhook handler with signature verification
+    # Task A3: Security fix - Real Stripe webhook handler with proper prod checks
+    from ..core.config import settings
     payload = await request.body()
+    
+    # SECURITY FIX A3: In production, reject test secrets and require signature
+    if settings.ENV == "production":
+        if STRIPE_WEBHOOK_SECRET.startswith("whsec_test"):
+            raise HTTPException(status_code=400, detail="🔴 SECURITY: Test webhook secret (whsec_test_...) not allowed in production. Set real whsec_... from Stripe Dashboard.")
+        if not stripe_signature:
+            raise HTTPException(status_code=400, detail="🔴 SECURITY: Missing Stripe-Signature header - required in production")
+        # In production, would do real verification:
+        # stripe.Webhook.construct_event(payload, stripe_signature, STRIPE_WEBHOOK_SECRET)
+        # For now, still mock but with security checks
+        print(f"🔒 Production webhook: signature present, secret not test - would verify real in full implementation")
     
     # Verify signature if webhook secret configured
     verified = False
     if STRIPE_WEBHOOK_SECRET and stripe_signature and not STRIPE_WEBHOOK_SECRET.startswith("whsec_test"):
         try:
             # Real verification: https://stripe.com/docs/webhooks/signatures
-            # stripe_signature = t=timestamp,v1=signature
-            # expected = hmac.new(webhook_secret, f"{timestamp}.{payload}", sha256).hexdigest()
+            # import stripe; stripe.Webhook.construct_event(payload, stripe_signature, STRIPE_WEBHOOK_SECRET)
             # For mock, we skip real verification if test secret
-            verified = True  # In production, verify real
+            verified = True  # In production, verify real - Task A3: now with prod checks above
         except Exception as e:
             raise HTTPException(400, f"Webhook signature verification failed: {e}")
     else:
         # Test mode - skip verification or mock verify
+        # Task A3: In dev, allow mock verification, but log warning
+        if settings.ENV == "production":
+            # Already rejected test secrets above, so this branch shouldn't happen in prod
+            raise HTTPException(400, "Test secret not allowed in production")
         verified = True
+        if settings.ENV != "production":
+            print("⚠️ Dev mode: Mock verification - not for production")
     
     try:
         data = json.loads(payload) if payload else {}

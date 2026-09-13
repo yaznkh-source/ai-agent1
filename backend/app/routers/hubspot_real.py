@@ -39,9 +39,21 @@ for i in range(5):
 
 @router.get("/")
 async def hubspot_real_home():
+    # Task A5: Honest reality field - was misleading "Real", now MOCK with explanation
+    from ..core.config import settings
     return {
-        "integration": "HubSpot Real - OAuth + Contacts/Deals/Companies/Notes/Workflows Sync Real API",
+        "integration": "HubSpot Mock (Real-API-Intended) - In-memory list 5 contacts, no requests to api.hubapi.com, mock token - Code exists, execution mock - Task A5 fix",
+        "reality": "MOCK_WITH_REAL_INTENDED_CODE",
+        "real_implementation_needed": [
+            "pip install requests or httpx",
+            "requests.get('https://api.hubapi.com/crm/v3/objects/contacts?limit=10', headers={'Authorization': f'Bearer {HUBSPOT_API_KEY}'}) - real call",
+            "requests.post('https://api.hubapi.com/crm/v3/objects/contacts', json={'properties': {...}}) - real create",
+            "OAuth: requests.post('https://api.hubapi.com/oauth/v1/token', data={grant_type, client_id, client_secret, code}) - real exchange",
+            "Current code uses in-memory list hubspot_real_contacts with 5 mock contacts, returns pat-mock-access-..., no real HTTP"
+        ],
+        "security_note": "In production, test keys (test_...) should be rejected - Task A3 fix for HubSpot similar to Stripe/Slack",
         "mode": "test" if HUBSPOT_API_KEY.startswith("test_") else "live",
+        "env": settings.ENV,
         "api_key_configured": bool(os.getenv("HUBSPOT_API_KEY")),
         "client_id_configured": bool(os.getenv("HUBSPOT_CLIENT_ID")),
         "client_secret_configured": bool(os.getenv("HUBSPOT_CLIENT_SECRET")),

@@ -136,6 +136,9 @@ class Client(Base):
     company = Column(String, nullable=True)
     description = Column(Text, nullable=True)
     status = Column(String, default="active")
+    # Task A9: Tenant isolation - owner_id and tenant_id
+    owner_id = Column(String, index=True, nullable=True)  # User who owns this client
+    tenant_id = Column(String, index=True, nullable=True)  # Tenant isolation
     created_at = Column(DateTime, default=datetime.utcnow)
     meta = Column(JSON, default={})
 
@@ -148,6 +151,9 @@ class Project(Base):
     status = Column(String, default="active")  # active, completed, paused
     workflow = Column(JSON, default={})  # workflow definition
     agents = Column(JSON, default=[])  # assigned agents
+    # Task A9: Tenant isolation
+    owner_id = Column(String, index=True, nullable=True)  # User who owns this project
+    tenant_id = Column(String, index=True, nullable=True)  # Tenant isolation
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     meta = Column(JSON, default={})
@@ -162,6 +168,9 @@ class Task(Base):
     priority = Column(String, default="medium")
     assigned_agent = Column(String, nullable=True)
     skill_used = Column(String, nullable=True)
+    # Task A9: Tenant isolation
+    owner_id = Column(String, index=True, nullable=True)
+    tenant_id = Column(String, index=True, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     meta = Column(JSON, default={})

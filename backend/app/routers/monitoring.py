@@ -41,11 +41,26 @@ for i in range(10):
 
 @router.get("/")
 async def monitoring_home():
+    # Task A5: Honest reality field - was misleading "Real", now MOCK with hardcoded data explanation
+    from ..core.config import settings
     return {
-        "monitoring": "Prometheus + Grafana + Alerts + PagerDuty - 10 Panels",
-        "prometheus": "http://localhost:9090 - Metrics scraping",
+        "monitoring": "Monitoring Mock (Real-API-Intended) - Hardcoded metrics 120/340/45.5/199/77.1, mock alerts, would_notify - Code exists, execution mock - Task A5 fix",
+        "reality": "MOCK_WITH_HARDCODED_DATA",
+        "real_implementation_needed": [
+            "pip install prometheus-client",
+            "from prometheus_client import Counter, Histogram, Gauge; agent_counter = Counter('agent_executions_total', 'Agents executed')",
+            "agent_counter.inc() on each agent run - real metrics",
+            "Histogram for latency, Gauge for WS connections, Counter for tasks",
+            "Real Prometheus server scraping /metrics endpoint",
+            "Real Grafana datasource http://prometheus:9090 + dashboard import",
+            "Real Alertmanager + PagerDuty integration",
+            "Current code hardcodes metrics dict with agents_executed 120, skills_used 340, llm_cost 45.50, revenue 199, margin 77.1, latency_p50 150 etc - NOT real Prometheus client"
+        ],
+        "hardcoded_data_warning": "metrics dict is HARDCODED - not from real DB or Prometheus - for demo only - Task A5 fix makes this explicit",
+        "prometheus": "http://localhost:9090 - Metrics scraping (needs docker-compose --profile monitoring up -d)",
         "grafana": "http://localhost:3000 - Dashboards - admin/admin123",
         "dashboard": "monitoring/grafana/dashboards/ai-agency-os.json - 10 panels agents/skills/cost/tasks/projects/margin/latency/WS/audit/MRR",
+        "env": settings.ENV,
         "metrics": metrics,
         "alerts": {"total": len(alerts), "firing": len([a for a in alerts if a["status"]=="firing"]), "resolved": len([a for a in alerts if a["status"]=="resolved"])},
         "how_to_setup": [

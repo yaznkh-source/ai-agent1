@@ -81,18 +81,56 @@ def require_role(required_role: str):
     return role_checker
 
 def create_default_users():
-    """Create default users for demo"""
+    """Create default users for demo - Task A1: Security fix for prod"""
+    from .config import settings
+    import os
+    
+    # Task A1: In production, don't create demo accounts unless explicitly allowed
+    if settings.ENV == "production" and not settings.ALLOW_DEMO_ACCOUNTS:
+        print("🔒 Production mode: Demo accounts disabled (ALLOW_DEMO_ACCOUNTS=False)")
+        # Only create admin from env var if provided
+        admin_pass = os.getenv("ADMIN_PASSWORD")
+        if admin_pass:
+            db = SessionLocal()
+            try:
+                if not db.query(User).filter(User.username == "admin").first():
+                    user = User(
+                        id=str(uuid.uuid4()),
+                        username="admin",
+                        email=os.getenv("ADMIN_EMAIL", "admin@ai-agency.os"),
+                        hashed_password=get_password_hash(admin_pass),
+                        role="super_admin",
+                        is_active=True
+                    )
+                    db.add(user)
+                    db.commit()
+                    print(f"✅ Admin user created from ADMIN_PASSWORD env var")
+            finally:
+                db.close()
+        return
+    
+    # In dev/test, create demo accounts with warning
+    if settings.ENV == "production" and settings.ALLOW_DEMO_ACCOUNTS:
+        print("⚠️ WARNING: Demo accounts enabled in production (ALLOW_DEMO_ACCOUNTS=True) - NOT RECOMMENDED for real prod")
+    else:
+        print("⚠️ Demo accounts enabled - only for development (ENV != production or ALLOW_DEMO_ACCOUNTS=True)")
+    
     db = SessionLocal()
     try:
         # Check if exists
         if db.query(User).filter(User.username == "admin").first():
             return
         
+        # Use env var for admin password if provided, else default for dev
+        admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+        if settings.ENV != "production" and admin_password == "admin123":
+            print("⚠️ Using default demo passwords - only for dev")
+        
         users = [
-            {"username": "admin", "email": "admin@ai-agency.os", "password": "admin123", "role": "super_admin"},
-            {"username": "owner", "email": "owner@agency.com", "password": "owner123", "role": "agency_owner"},
-            {"username": "member", "email": "member@agency.com", "password": "member123", "role": "agency_member"},
-            {"username": "client", "email": "client@example.com", "password": "client123", "role": "client"},
+            {"username": "admin", "email": "admin@ai-agency.os", "password": admin_password, "role": "super_admin"},
+            {"username": "owner", "email": "owner@agency.com", "password": os.getenv("OWNER_PASSWORD", "owner123"), "role": "agency_owner"},
+            {"username": "member", "email": "member@agency.com", "password": os.getenv("MEMBER_PASSWORD", "member123"), "role": "agency_member"},
+            {"username": "client", "email": "client@example.com", "password": os.getenv("CLIENT_PASSWORD", "client123"), "role": "client"},
         ]
         
         for u in users:
@@ -112,14 +150,17 @@ def create_default_users():
                 id="default-user",
                 username="demo",
                 email="demo@ai-agency.os",
-                hashed_password=get_password_hash("demo"),
+                hashed_password=get_password_hash(os.getenv("DEMO_PASSWORD", "demo")),
                 role="agency_owner",
                 is_active=True
             )
             db.add(demo)
         
         db.commit()
-        print("✅ Default users created: admin/admin123, owner/owner123, member/member123, client/client123")
+        if settings.ENV != "production":
+            print("✅ Default users created: admin/admin123, owner/owner123, member/member123, client/client123 (dev only)")
+        else:
+            print("✅ Demo users created in production (ALLOW_DEMO_ACCOUNTS=True) - change passwords via env vars")
     finally:
         db.close()
 

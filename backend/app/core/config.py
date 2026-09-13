@@ -16,9 +16,11 @@ class Settings(BaseSettings):
     PORT: int = 8000
     DEBUG: bool = True
     
-    # Security
-    SECRET_KEY: str = "ai-agency-os-secret-key-change-in-production"
+    # Security - Task A2: Fix default secrets
+    SECRET_KEY: str = ""  # Must be set via JWT_SECRET env var in production
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
+    ENV: str = "development"  # development, production, test
+    ALLOW_DEMO_ACCOUNTS: bool = True  # Set to False in production
     
     # Database
     DATABASE_URL: str = "sqlite:///./ai_agency.db"
@@ -61,3 +63,22 @@ class Settings(BaseSettings):
         extra = "allow"
 
 settings = Settings()
+
+# Task A2: Security - Fail fast if JWT_SECRET not set in production
+import os
+if settings.ENV == "production":
+    jwt_secret = os.getenv("JWT_SECRET") or os.getenv("SECRET_KEY") or settings.SECRET_KEY
+    if not jwt_secret or jwt_secret in ["ai-agency-os-secret-key-change-in-production", "super-secret-jwt-key-change-in-production", "change-me-in-production", ""]:
+        raise ValueError("🔴 SECURITY CRITICAL: JWT_SECRET must be set in production via env var. Set JWT_SECRET to a strong random value (e.g. openssl rand -hex 32). Current value is default/empty.")
+    settings.SECRET_KEY = jwt_secret
+else:
+    # In dev, allow default but warn
+    if not settings.SECRET_KEY:
+        settings.SECRET_KEY = "dev-secret-key-only-for-development-not-production"
+        print("⚠️ Using dev SECRET_KEY - not for production")
+
+# Ensure SECRET_KEY is set
+if not settings.SECRET_KEY:
+    settings.SECRET_KEY = os.getenv("JWT_SECRET", "dev-secret-key-only-for-development-not-production")
+    if settings.ENV == "production":
+        raise ValueError("JWT_SECRET must be set in production")

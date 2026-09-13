@@ -15,11 +15,25 @@ from datetime import timedelta
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 class LoginRequest(BaseModel):
-    username: str
+    # Task A8: Fix - accept username OR email - was only username, failed with email field
+    username: str = None
+    email: str = None
     password: str
+    
+    def get_identifier(self):
+        # Return username or email, whichever provided
+        return self.username or self.email
+    
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate_identifier
+    
+    @classmethod
+    def validate_identifier(cls, values):
+        return values
 
 class RegisterRequest(BaseModel):
-    username: str
+    username: str = None
     email: str
     password: str
     role: str = "user"
@@ -32,7 +46,12 @@ except:
 
 @router.post("/login")
 async def login(req: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter((User.username == req.username) | (User.email == req.username)).first()
+    # Task A8: Accept username OR email
+    identifier = req.get_identifier()
+    if not identifier:
+        raise HTTPException(status_code=400, detail="Username or email required")
+    
+    user = db.query(User).filter((User.username == identifier) | (User.email == identifier)).first()
     if not user or not verify_password(req.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
@@ -53,13 +72,15 @@ async def login(req: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/register")
 async def register(req: RegisterRequest, db: Session = Depends(get_db)):
-    if db.query(User).filter((User.username == req.username) | (User.email == req.email)).first():
+    # Task A8: Username optional, use email prefix if not provided
+    username = req.username or req.email.split("@")[0]
+    if db.query(User).filter((User.username == username) | (User.email == req.email)).first():
         raise HTTPException(status_code=400, detail="User already exists")
     
     import uuid
     user = User(
         id=str(uuid.uuid4()),
-        username=req.username,
+        username=username,
         email=req.email,
         hashed_password=get_password_hash(req.password),
         role=req.role if req.role in ["user", "client"] else "user",
