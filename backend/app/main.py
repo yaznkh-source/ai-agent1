@@ -13,7 +13,7 @@ import time
 from .core.config import settings
 from .core.database import init_db
 from .core.swagger import openapi_custom_info, swagger_custom_css
-from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing, billing_real, verification, marketplace, realtime, storage, audit, teams, zapier, hubspot, hubspot_real, slack_real, monitoring, gdpr, backup, metrics, llm, domain_free, tools_curated, loops, voice, beta, prod_launch, mrr_30k, mrr_100k, enterprise, mrr_1m, beta_zero, openai_compatible, arena_battle, leaderboard, agent_execution, voice_real
+from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing, billing_real, verification, marketplace, realtime, storage, audit, teams, zapier, hubspot, hubspot_real, slack_real, monitoring, gdpr, backup, metrics, llm, domain_free, tools_curated, loops, voice, beta, prod_launch, mrr_30k, mrr_100k, enterprise, mrr_1m, beta_zero, openai_compatible, arena_battle, leaderboard, agent_execution, voice_real, chat_stream, search_augmented, eval_auto
 from .core.auth import create_default_users
 
 # Task A4: Rate limiting - slowapi
@@ -147,6 +147,9 @@ app.include_router(arena_battle.router)
 app.include_router(leaderboard.router)
 app.include_router(agent_execution.router)
 app.include_router(voice_real.router)
+app.include_router(chat_stream.router)
+app.include_router(search_augmented.router)
+app.include_router(eval_auto.router)
 
 @app.get("/")
 async def root():

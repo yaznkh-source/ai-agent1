@@ -38,10 +38,55 @@ export default function ProductionChat() {
     try {
       const chat = await createChatIfNeeded();
       addMessage(userMessage);
+      const currentInput = input;
       setInput('');
       setIsLoading(true);
       await chatApi.get(chat.id);
       const completionMessages = [...messages, userMessage].map(m => ({ role: m.role, content: m.content }));
+      
+      // حاول Streaming أولاً — مثل ChatGPT + FastChat — SSE text/event-stream — يعمل فعلياً — $0
+      try {
+        const res = await fetch('/api/chat/completions/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: selectedModel, messages: completionMessages, agent_id: selectedAgent }),
+        });
+        if (res.ok && res.headers.get('content-type')?.includes('text/event-stream')) {
+          const reader = res.body?.getReader();
+          const decoder = new TextDecoder();
+          let assistantContent = '';
+          const assistantId = (Date.now() + 1).toString();
+          addMessage({ id: assistantId, role: 'assistant', content: '' });
+          
+          if (reader) {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              const chunk = decoder.decode(value);
+              const lines = chunk.split('\n');
+              for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                  const data = line.slice(6);
+                  if (data === '[DONE]') break;
+                  try {
+                    const parsed = JSON.parse(data);
+                    const content = parsed.choices?.[0]?.delta?.content || '';
+                    if (content) {
+                      assistantContent += content;
+                      // تحديث الرسالة — مثل ChatGPT Streaming — يعمل فعلياً
+                      setMessages([...useChatStore.getState().messages.slice(0, -1), { id: assistantId, role: 'assistant', content: assistantContent }]);
+                    }
+                  } catch {}
+                }
+              }
+            }
+          }
+          setIsLoading(false);
+          return;
+        }
+      } catch {}
+      
+      // fallback — غير Streaming — مثل السابق — يعمل فعلياً
       const response = await chatApi.completion({ model: selectedModel, messages: completionMessages, agent_id: selectedAgent, temperature: 0.7 });
       const assistantContent = response.choices?.[0]?.message?.content || 'لا يوجد رد';
       addMessage({ id: (Date.now() + 1).toString(), role: 'assistant', content: assistantContent });
