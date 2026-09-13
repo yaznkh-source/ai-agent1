@@ -35,6 +35,13 @@ async def get_agent(agent_id: str):
 
 @router.post("/run")
 async def run_agent(req: AgentRunRequest):
+    # Task C3: Prometheus metrics wiring - increment agents_executed
+    try:
+        from .metrics import increment_agent_executed
+        increment_agent_executed(req.agent_id)
+    except:
+        pass
+    
     result = await orchestrator.run_single_agent(
         agent_id=req.agent_id,
         task=req.task,

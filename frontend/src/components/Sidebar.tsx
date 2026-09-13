@@ -85,6 +85,8 @@ export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
     { id: 'billing', label: 'الفوترة', labelEn: 'Billing', icon: CreditCard, track: 'B' },
     { id: 'eval', label: 'التقييم', labelEn: 'Eval', icon: BarChart3, track: 'B' },
     { id: 'integrations', label: 'التكاملات', labelEn: 'Integrations', icon: Plug, track: 'C' },
+    { id: 'privacy', label: 'الخصوصية', labelEn: 'Privacy', icon: Shield, track: 'B' },
+    { id: 'terms', label: 'الشروط', labelEn: 'Terms', icon: FileText, track: 'B' },
   ];
 
   return (

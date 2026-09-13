@@ -22,6 +22,8 @@ import RealtimeView from './components/RealtimeView';
 import AuditView from './components/AuditView';
 import TeamsView from './components/TeamsView';
 import ZapierView from './components/ZapierView';
+import PrivacyPolicyView from './components/PrivacyPolicyView';
+import TermsView from './components/TermsView';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -76,6 +78,10 @@ function App() {
         return <TeamsView />;
       case 'zapier':
         return <ZapierView />;
+      case 'privacy':
+        return <PrivacyPolicyView />;
+      case 'terms':
+        return <TermsView />;
       default:
         return <Dashboard />;
     }
