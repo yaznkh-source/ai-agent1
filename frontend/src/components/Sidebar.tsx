@@ -1,0 +1,173 @@
+import { useEffect, useState } from 'react';
+import { chatApi } from '../lib/api';
+import { useChatStore } from '../stores/chat';
+import { MessageSquare, Plus, Trash2, Bot, Zap, Brain, Wrench, Workflow, Shield, LayoutDashboard } from 'lucide-react';
+
+interface SidebarProps {
+  activeView: string;
+  setActiveView: (view: string) => void;
+}
+
+export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
+  const { chats, setChats, setCurrentChat, setMessages } = useChatStore();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadChats();
+  }, []);
+
+  const loadChats = async () => {
+    setLoading(true);
+    try {
+      const data = await chatApi.list();
+      setChats(data);
+    } catch (e) {
+      console.error(e);
+    }
+    setLoading(false);
+  };
+
+  const createNewChat = async () => {
+    try {
+      const newChat = await chatApi.create({ title: 'New Chat', model: 'gpt-4o-mini' });
+      setChats([newChat, ...chats]);
+      setCurrentChat(newChat);
+      setMessages([]);
+      setActiveView('chat');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const selectChat = async (chat: any) => {
+    try {
+      const fullChat = await chatApi.get(chat.id);
+      setCurrentChat(fullChat);
+      setMessages(fullChat.messages || []);
+      setActiveView('chat');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const deleteChat = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await chatApi.delete(id);
+      setChats(chats.filter(c => c.id !== id));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const menuItems = [
+    { id: 'dashboard', label: 'لوحة التحكم', labelEn: 'Dashboard', icon: LayoutDashboard },
+    { id: 'chat', label: 'المحادثات', labelEn: 'Chat', icon: MessageSquare },
+    { id: 'agents', label: 'الوكلاء', labelEn: 'Agents', icon: Bot },
+    { id: 'skills', label: 'المهارات', labelEn: 'Skills', icon: Zap },
+    { id: 'pipelines', label: 'مسارات العمل', labelEn: 'Pipelines', icon: Workflow },
+    { id: 'tools', label: 'الأدوات', labelEn: 'Tools', icon: Wrench },
+    { id: 'memory', label: 'الذاكرة', labelEn: 'Memory', icon: Brain },
+    { id: 'agency', label: 'الوكالة', labelEn: 'Agency', icon: LayoutDashboard },
+    { id: 'security', label: 'الأمان', labelEn: 'Security', icon: Shield },
+  ];
+
+  return (
+    <div className="w-72 bg-zinc-900 text-white flex flex-col h-full">
+      {/* Header */}
+      <div className="p-4 border-b border-zinc-800">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center font-bold text-lg glow">
+            AI
+          </div>
+          <div>
+            <h1 className="font-bold text-lg">AI Agency OS</h1>
+            <p className="text-xs text-zinc-400">ECC + Open WebUI</p>
+          </div>
+        </div>
+        
+        <button
+          onClick={createNewChat}
+          className="w-full flex items-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors font-medium"
+        >
+          <Plus size={18} />
+          محادثة جديدة
+        </button>
+      </div>
+
+      {/* Navigation */}
+      <div className="p-3 border-b border-zinc-800">
+        <div className="grid grid-cols-2 gap-2">
+          {menuItems.map(item => {
+            const Icon = item.icon;
+            const isActive = activeView === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveView(item.id)}
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all ${
+                  isActive 
+                    ? 'bg-zinc-800 text-white shadow-lg' 
+                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                }`}
+              >
+                <Icon size={16} />
+                <span className="truncate">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Chat History */}
+      <div className="flex-1 overflow-y-auto p-3">
+        <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-2">
+          المحادثات الأخيرة
+        </h3>
+        
+        {loading ? (
+          <div className="text-zinc-500 text-sm px-2">جاري التحميل...</div>
+        ) : chats.length === 0 ? (
+          <div className="text-zinc-500 text-sm px-2">لا توجد محادثات</div>
+        ) : (
+          <div className="space-y-1">
+            {chats.map((chat: any) => (
+              <div
+                key={chat.id}
+                onClick={() => selectChat(chat)}
+                className="group flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-zinc-800 cursor-pointer transition-colors"
+              >
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <MessageSquare size={14} className="text-zinc-500 flex-shrink-0" />
+                  <span className="text-sm truncate">{chat.title}</span>
+                </div>
+                <button
+                  onClick={(e) => deleteChat(chat.id, e)}
+                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-zinc-700 rounded-lg transition-all"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-zinc-800">
+        <div className="bg-zinc-800/50 rounded-xl p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-xs font-medium">النظام نشط</span>
+          </div>
+          <div className="text-xs text-zinc-400 space-y-1">
+            <div>🤖 20 وكيل متخصص</div>
+            <div>⚡ 15 مهارة جاهزة</div>
+            <div>🔧 9 أدوات</div>
+            <div>🛡️ AgentShield نشط</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
