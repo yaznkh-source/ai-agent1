@@ -98,6 +98,7 @@ export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
     { id: 'mrr-100k', label: 'إيرادات 100 ألف', labelEn: 'MRR $100K+', icon: LineChart, track: 'B' },
     { id: 'enterprise', label: 'جاهزية المؤسسات', labelEn: 'Enterprise SOC2 $0', icon: Shield, track: 'C' },
     { id: 'mrr-1m', label: 'إيرادات مليون', labelEn: 'MRR $1M+ ARR', icon: LineChart, track: 'B' },
+    { id: 'beta-zero', label: 'بيتا 100 مستخدم $0', labelEn: 'Beta 100 $0 Zero', icon: Users2, track: 'B' },
   ];
 
   return (
