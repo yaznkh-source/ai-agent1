@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { chatApi } from '../lib/api';
 import { useChatStore } from '../stores/chat';
-import { MessageSquare, Plus, Trash2, Bot, Zap, Brain, Wrench, Workflow, Shield, LayoutDashboard, Lock, BookOpen, BarChart3, Plug, CreditCard, Users, GitBranch, FileText, Globe, LineChart, ShoppingBag, Radio, ClipboardList, Users2 } from 'lucide-react';
+import { MessageSquare, Plus, Trash2, Bot, Zap, Brain, Wrench, Workflow, Shield, LayoutDashboard, Lock, BookOpen, BarChart3, Plug, CreditCard, Users, GitBranch, FileText, Globe, LineChart, ShoppingBag, Radio, ClipboardList, Users2, Zap as ZapIcon } from 'lucide-react';
 
 interface SidebarProps {
   activeView: string;
@@ -68,6 +68,7 @@ export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
     { id: 'realtime', label: 'الوقت الحقيقي', labelEn: 'Realtime', icon: Radio, track: 'C' },
     { id: 'audit', label: 'التدقيق', labelEn: 'Audit', icon: ClipboardList, track: 'C' },
     { id: 'teams', label: 'الفريق', labelEn: 'Teams', icon: Users2, track: 'B' },
+    { id: 'zapier', label: 'Zapier/Make', labelEn: 'Zapier', icon: ZapIcon, track: 'C' },
     { id: 'chat', label: 'المحادثات', labelEn: 'Chat', icon: MessageSquare, track: 'A' },
     { id: 'agents', label: 'الوكلاء', labelEn: 'Agents', icon: Bot, track: 'D' },
     { id: 'skills', label: 'المهارات', labelEn: 'Skills', icon: Zap, track: 'D' },

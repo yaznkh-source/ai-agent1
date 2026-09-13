@@ -21,6 +21,7 @@ import MarketplaceView from './components/MarketplaceView';
 import RealtimeView from './components/RealtimeView';
 import AuditView from './components/AuditView';
 import TeamsView from './components/TeamsView';
+import ZapierView from './components/ZapierView';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -73,6 +74,8 @@ function App() {
         return <AuditView />;
       case 'teams':
         return <TeamsView />;
+      case 'zapier':
+        return <ZapierView />;
       default:
         return <Dashboard />;
     }
