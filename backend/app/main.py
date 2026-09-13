@@ -10,6 +10,7 @@ import os
 
 from .core.config import settings
 from .core.database import init_db
+from .core.swagger import openapi_custom_info, swagger_custom_css
 from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing, verification, marketplace, realtime, storage, audit, teams, zapier, hubspot
 from .core.auth import create_default_users
 
@@ -21,9 +22,11 @@ except Exception as e:
     print(f"Auth init: {e}")
 
 app = FastAPI(
-    title=settings.APP_NAME,
-    version=settings.VERSION,
-    description=settings.DESCRIPTION,
+    title=openapi_custom_info["title"],
+    version=openapi_custom_info["version"],
+    description=openapi_custom_info["description"],
+    contact=openapi_custom_info["contact"],
+    license_info=openapi_custom_info["license"],
     docs_url="/api/docs",
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json"
