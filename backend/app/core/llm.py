@@ -18,7 +18,7 @@ class LLMProvider:
 
 class OpenAIProvider(LLMProvider):
     def __init__(self, api_key: str = None, base_url: str = None):
-        # UnoRouter - Real provider $0 - https://api.unorouter.com/v1 - API: sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR - model claude-sonnet-5-thinking
+        # UnoRouter - Real provider $0 - https://api.unorouter.com/v1 - API: sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR - model gemini-flash-lite:free
         self.api_key = api_key or settings.OPENAI_API_KEY or settings.UNOROUTER_API_KEY or "sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR"
         self.base_url = base_url or settings.OPENAI_BASE_URL or settings.UNOROUTER_BASE_URL or "https://api.unorouter.com/v1"
     
@@ -34,9 +34,9 @@ class OpenAIProvider(LLMProvider):
             "Content-Type": "application/json"
         }
         
-        # UnoRouter supports claude-sonnet-5-thinking - Real $0
+        # UnoRouter supports gemini-flash-lite:free - Real $0
         payload = {
-            "model": model or settings.DEFAULT_MODEL or "claude-sonnet-5-thinking",
+            "model": model or settings.DEFAULT_MODEL or "gemini-flash-lite:free",
             "messages": messages,
             "stream": stream,
             **kwargs
@@ -138,10 +138,10 @@ Try asking about:
                 
                 # Return OpenAI-compatible format
                 return {
-                    "id": f"chatcmpl-{payload.get('model', 'claude-sonnet-5-thinking')}",
+                    "id": f"chatcmpl-{payload.get('model', 'gemini-flash-lite:free')}",
                     "object": "chat.completion",
                     "created": 0,
-                    "model": payload.get("model", "claude-sonnet-5-thinking"),
+                    "model": payload.get("model", "gemini-flash-lite:free"),
                     "choices": [{
                         "index": 0,
                         "message": {"role": "assistant", "content": full_content},
@@ -159,7 +159,7 @@ Try asking about:
                 return resp.json()
             except Exception as e2:
                 print(f"⚠️ Non-streaming also failed: {e2} - fallback to mock")
-                return self._mock_response(payload["messages"], payload.get("model", "claude-sonnet-5-thinking"), payload.get("tools"))
+                return self._mock_response(payload["messages"], payload.get("model", "gemini-flash-lite:free"), payload.get("tools"))
     
     async def list_models(self):
         if not settings.OPENAI_API_KEY:

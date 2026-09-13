@@ -12,8 +12,8 @@ from datetime import datetime
 
 router = APIRouter(prefix="/api/chat", tags=["chat-stream-real"])
 
-async def stream_generator(messages: list, model: str = "claude-sonnet-5-thinking"):
-    """مولد Streaming — مثل ChatGPT — يرسل tokens تدريجياً — يعمل فعلياً — Real UnoRouter $0 — https://api.unorouter.com/v1/chat/completions - Bearer sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR - claude-sonnet-5-thinking streaming true"""
+async def stream_generator(messages: list, model: str = "gemini-flash-lite:free"):
+    """مولد Streaming — مثل ChatGPT — يرسل tokens تدريجياً — يعمل فعلياً — Real UnoRouter $0 — https://api.unorouter.com/v1/chat/completions - Bearer sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR - gemini-flash-lite:free streaming true"""
     chat_id = f"chatcmpl-{uuid.uuid4().hex[:8]}"
     created = int(datetime.utcnow().timestamp())
     
@@ -46,7 +46,7 @@ async def stream_generator(messages: list, model: str = "claude-sonnet-5-thinkin
             "Content-Type": "application/json"
         }
         payload = {
-            "model": model or "claude-sonnet-5-thinking",
+            "model": model or "gemini-flash-lite:free",
             "messages": messages,
             "stream": True,
             "temperature": 0.7

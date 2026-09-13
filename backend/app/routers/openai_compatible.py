@@ -67,9 +67,9 @@ async def get_model(model_id: str) -> Dict[str, Any]:
 
 @router.post("/chat/completions")
 async def chat_completions(req: Dict[str, Any]) -> Dict[str, Any]:
-    """محادثة — مثل FastChat /v1/chat/completions — OpenAI-compatible — يعمل فعلياً — ليس واجهة تافهة — Real UnoRouter $0 — https://api.unorouter.com/v1/chat/completions — Bearer sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR — claude-sonnet-5-thinking streaming true"""
+    """محادثة — مثل FastChat /v1/chat/completions — OpenAI-compatible — يعمل فعلياً — ليس واجهة تافهة — Real UnoRouter $0 — https://api.unorouter.com/v1/chat/completions — Bearer sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR — gemini-flash-lite:free streaming true"""
     messages = req.get("messages", [])
-    model = req.get("model", "claude-sonnet-5-thinking")
+    model = req.get("model", "gemini-flash-lite:free")
     stream = req.get("stream", False)
     temperature = req.get("temperature", 0.7)
     
@@ -110,7 +110,7 @@ async def chat_completions(req: Dict[str, Any]) -> Dict[str, Any]:
         except Exception as e:
             pass
     
-    # استدعاء LLM حقيقي — UnoRouter - Real $0 - https://api.unorouter.com/v1/chat/completions - Bearer sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR - claude-sonnet-5-thinking
+    # استدعاء LLM حقيقي — UnoRouter - Real $0 - https://api.unorouter.com/v1/chat/completions - Bearer sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR - gemini-flash-lite:free
     try:
         from ..core.llm import llm_manager
         from ..core.conversation import get_conversation_template
@@ -144,9 +144,9 @@ Model: {model}
 You said: "{last_user[:200]}"
 Error: {str(e)[:200]}
 
-أنا أعمل في وضع OpenAI-Compatible API — مثل FastChat openai_api_server.py — Real API UnoRouter https://api.unorouter.com/v1/chat/completions - Bearer sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR - claude-sonnet-5-thinking - يعمل فعلياً
+أنا أعمل في وضع OpenAI-Compatible API — مثل FastChat openai_api_server.py — Real API UnoRouter https://api.unorouter.com/v1/chat/completions - Bearer sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR - gemini-flash-lite:free - يعمل فعلياً
 
-جرب: openai.api_base = "https://api.unorouter.com/v1" — model claude-sonnet-5-thinking — يعمل فعلياً — $0
+جرب: openai.api_base = "https://api.unorouter.com/v1" — model gemini-flash-lite:free — يعمل فعلياً — $0
 """
         return {
             "id": f"chatcmpl-{uuid.uuid4()}",
@@ -162,7 +162,7 @@ Error: {str(e)[:200]}
         }
 
 async def chat_completions_stream_real(messages: List[Dict], model: str, temperature: float):
-    """Streaming حقيقي — مثل FastChat و ChatGPT و Claude و Gemini — SSE text/event-stream — Real UnoRouter https://api.unorouter.com/v1/chat/completions - Bearer sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR - claude-sonnet-5-thinking streaming true — يعمل فعلياً — ليس واجهة تافهة"""
+    """Streaming حقيقي — مثل FastChat و ChatGPT و Claude و Gemini — SSE text/event-stream — Real UnoRouter https://api.unorouter.com/v1/chat/completions - Bearer sk-acwGAyBgbL5874HCWoVuS7Uwzf9XNpEWlaRrvMizePyEfUoR - gemini-flash-lite:free streaming true — يعمل فعلياً — ليس واجهة تافهة"""
     try:
         from ..core.config import settings
         import httpx
@@ -175,7 +175,7 @@ async def chat_completions_stream_real(messages: List[Dict], model: str, tempera
             "Content-Type": "application/json"
         }
         payload = {
-            "model": model or "claude-sonnet-5-thinking",
+            "model": model or "gemini-flash-lite:free",
             "messages": messages,
             "stream": True,
             "temperature": temperature
