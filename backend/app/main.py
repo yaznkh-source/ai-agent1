@@ -10,10 +10,15 @@ import os
 
 from .core.config import settings
 from .core.database import init_db
-from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency
+from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing
+from .core.auth import create_default_users
 
 # Initialize DB
 init_db()
+try:
+    create_default_users()
+except Exception as e:
+    print(f"Auth init: {e}")
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -33,7 +38,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
+# Include routers - Track A-D
+app.include_router(auth.router)
 app.include_router(chat.router)
 app.include_router(agents.router)
 app.include_router(skills.router)
@@ -42,24 +48,35 @@ app.include_router(tools.router)
 app.include_router(functions.router)
 app.include_router(pipelines.router)
 app.include_router(agency.router)
+app.include_router(knowledge.router)
+app.include_router(eval.router)
+app.include_router(integrations.router)
+app.include_router(billing.router)
 
 @app.get("/")
 async def root():
+    from .agents.definitions import get_all_agents
+    from .skills.manager import skill_manager
     return {
         "name": settings.APP_NAME,
         "version": settings.VERSION,
         "description": settings.DESCRIPTION,
         "inspired_by": ["ECC (Everything Claude Code)", "Open WebUI"],
         "features": {
-            "agents": "68 specialized agents (ECC-inspired)",
-            "skills": "292 reusable skills",
-            "tools": "Open WebUI-like tool calling",
+            "agents": f"{len(get_all_agents())} specialized agents (ECC-inspired, target 68)",
+            "skills": f"{len(skill_manager.list_skills())} reusable skills (target 292)",
+            "tools": "Open WebUI-like tool calling + 9 tools",
             "functions": "Pipe, Filter, Action, Event (Open WebUI)",
-            "pipelines": "OpenAI API compatible workflows",
-            "memory": "Session persistence + Instincts continuous learning",
-            "verification": "Build, test, lint, typecheck, security gate",
+            "pipelines": "OpenAI API compatible workflows + 4 pipelines",
+            "memory": "Session persistence + Instincts continuous learning + RAG",
+            "verification": "Build, test, lint, typecheck, security gate (real + mock)",
             "shield": "AgentShield security scanning",
-            "agency": "Clients, Projects, Tasks management"
+            "agency": "Clients, Projects, Tasks management",
+            "auth": "JWT + RBAC + multi-tenancy",
+            "knowledge": "ChromaDB + embeddings + collections",
+            "eval": "Eval harness + agent router",
+            "integrations": "Slack, Discord, GitHub, n8n, WhatsApp",
+            "billing": "Tiers + usage + Stripe mock"
         },
         "endpoints": {
             "docs": "/api/docs",
@@ -67,7 +84,18 @@ async def root():
             "agents": "/api/agents",
             "skills": "/api/skills",
             "pipelines": "/api/pipelines",
-            "agency": "/api/agency/dashboard"
+            "agency": "/api/agency/dashboard",
+            "auth": "/api/auth/demo-accounts",
+            "knowledge": "/api/knowledge/collections",
+            "eval": "/api/eval/datasets",
+            "integrations": "/api/integrations/",
+            "billing": "/api/billing/tiers"
+        },
+        "tracks": {
+            "A": "Freelancer - LLM cost tracking + RAG + Client Portal",
+            "B": "SaaS - Auth + Billing + Eval Harness",
+            "C": "Team Tool - Real verification + GitHub + Slack",
+            "D": "Intelligence - 35 agents + 30 skills + Router + Pipeline Builder"
         }
     }
 

@@ -423,7 +423,11 @@ Your mindset: How could this fail? What did devs assume?""",
 
 # For extensibility - function to get all agents including custom
 def get_all_agents():
-    return AGENT_DEFINITIONS
+    try:
+        from .extra_agents import get_extra_agents
+        return AGENT_DEFINITIONS + get_extra_agents()
+    except:
+        return AGENT_DEFINITIONS
 
 def get_agent_by_id(agent_id: str):
     for agent in AGENT_DEFINITIONS:

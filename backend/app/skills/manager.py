@@ -487,6 +487,13 @@ Long history blows context window, loses focus.
 class SkillManager:
     def __init__(self):
         self.skills = {s["id"]: s for s in BUILTIN_SKILLS}
+        # Load extra skills
+        try:
+            from .extra_skills import get_extra_skills
+            for s in get_extra_skills():
+                self.skills[s["id"]] = s
+        except Exception as e:
+            print(f"Extra skills load failed: {e}")
         self.load_from_disk()
     
     def load_from_disk(self):

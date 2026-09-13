@@ -7,6 +7,11 @@ import PipelinesView from './components/PipelinesView';
 import ToolsView from './components/ToolsView';
 import AgencyView from './components/AgencyView';
 import Dashboard from './components/Dashboard';
+import AuthView from './components/AuthView';
+import KnowledgeView from './components/KnowledgeView';
+import EvalView from './components/EvalView';
+import IntegrationsView from './components/IntegrationsView';
+import BillingView from './components/BillingView';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -31,6 +36,16 @@ function App() {
         return <AgencyView />;
       case 'security':
         return <ToolsView view="security" />;
+      case 'auth':
+        return <AuthView />;
+      case 'knowledge':
+        return <KnowledgeView />;
+      case 'eval':
+        return <EvalView />;
+      case 'integrations':
+        return <IntegrationsView />;
+      case 'billing':
+        return <BillingView />;
       default:
         return <Dashboard />;
     }

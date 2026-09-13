@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { chatApi } from '../lib/api';
 import { useChatStore } from '../stores/chat';
-import { MessageSquare, Plus, Trash2, Bot, Zap, Brain, Wrench, Workflow, Shield, LayoutDashboard } from 'lucide-react';
+import { MessageSquare, Plus, Trash2, Bot, Zap, Brain, Wrench, Workflow, Shield, LayoutDashboard, Lock, BookOpen, BarChart3, Plug, CreditCard, Users } from 'lucide-react';
 
 interface SidebarProps {
   activeView: string;
@@ -61,15 +61,20 @@ export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
   };
 
   const menuItems = [
-    { id: 'dashboard', label: 'لوحة التحكم', labelEn: 'Dashboard', icon: LayoutDashboard },
-    { id: 'chat', label: 'المحادثات', labelEn: 'Chat', icon: MessageSquare },
-    { id: 'agents', label: 'الوكلاء', labelEn: 'Agents', icon: Bot },
-    { id: 'skills', label: 'المهارات', labelEn: 'Skills', icon: Zap },
-    { id: 'pipelines', label: 'مسارات العمل', labelEn: 'Pipelines', icon: Workflow },
-    { id: 'tools', label: 'الأدوات', labelEn: 'Tools', icon: Wrench },
-    { id: 'memory', label: 'الذاكرة', labelEn: 'Memory', icon: Brain },
-    { id: 'agency', label: 'الوكالة', labelEn: 'Agency', icon: LayoutDashboard },
-    { id: 'security', label: 'الأمان', labelEn: 'Security', icon: Shield },
+    { id: 'dashboard', label: 'لوحة التحكم', labelEn: 'Dashboard', icon: LayoutDashboard, track: 'ABCD' },
+    { id: 'chat', label: 'المحادثات', labelEn: 'Chat', icon: MessageSquare, track: 'A' },
+    { id: 'agents', label: 'الوكلاء', labelEn: 'Agents', icon: Bot, track: 'D' },
+    { id: 'skills', label: 'المهارات', labelEn: 'Skills', icon: Zap, track: 'D' },
+    { id: 'pipelines', label: 'مسارات العمل', labelEn: 'Pipelines', icon: Workflow, track: 'C' },
+    { id: 'tools', label: 'الأدوات', labelEn: 'Tools', icon: Wrench, track: 'A' },
+    { id: 'memory', label: 'الذاكرة', labelEn: 'Memory', icon: Brain, track: 'A' },
+    { id: 'knowledge', label: 'المعرفة RAG', labelEn: 'Knowledge', icon: BookOpen, track: 'A' },
+    { id: 'agency', label: 'الوكالة', labelEn: 'Agency', icon: Users, track: 'A' },
+    { id: 'security', label: 'الأمان', labelEn: 'Security', icon: Shield, track: 'C' },
+    { id: 'auth', label: 'المصادقة', labelEn: 'Auth', icon: Lock, track: 'B' },
+    { id: 'billing', label: 'الفوترة', labelEn: 'Billing', icon: CreditCard, track: 'B' },
+    { id: 'eval', label: 'التقييم', labelEn: 'Eval', icon: BarChart3, track: 'B' },
+    { id: 'integrations', label: 'التكاملات', labelEn: 'Integrations', icon: Plug, track: 'C' },
   ];
 
   return (
@@ -158,13 +163,22 @@ export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
         <div className="bg-zinc-800/50 rounded-xl p-3">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-xs font-medium">النظام نشط</span>
+            <span className="text-xs font-medium">النظام نشط v2 - ABCD</span>
           </div>
           <div className="text-xs text-zinc-400 space-y-1">
-            <div>🤖 20 وكيل متخصص</div>
-            <div>⚡ 15 مهارة جاهزة</div>
-            <div>🔧 9 أدوات</div>
+            <div>🤖 35 وكيل متخصص (هدف 68)</div>
+            <div>⚡ 30 مهارة جاهزة (هدف 292)</div>
+            <div>🔧 9 أدوات + 6 Functions</div>
+            <div>🧠 RAG + ChromaDB</div>
+            <div>🔐 Auth + Billing + Eval</div>
+            <div>🔌 Slack/GitHub/n8n</div>
             <div>🛡️ AgentShield نشط</div>
+          </div>
+          <div className="mt-3 grid grid-cols-4 gap-1 text-[9px]">
+            <div className="bg-violet-600 text-white px-1 py-0.5 rounded text-center">A Freelance</div>
+            <div className="bg-blue-600 text-white px-1 py-0.5 rounded text-center">B SaaS</div>
+            <div className="bg-green-600 text-white px-1 py-0.5 rounded text-center">C Team</div>
+            <div className="bg-amber-600 text-white px-1 py-0.5 rounded text-center">D Intel</div>
           </div>
         </div>
       </div>

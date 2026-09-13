@@ -79,3 +79,34 @@ export const agencyApi = {
   securityAudit: () => api.get('/agency/security/audit').then(r => r.data),
   verify: (data: any) => api.post('/agency/verify', null, { params: data }).then(r => r.data),
 };
+
+export const authApi = {
+  login: (data: any) => api.post('/auth/login', data).then(r => r.data),
+  me: () => api.get('/auth/me').then(r => r.data),
+  costs: () => api.get('/auth/costs').then(r => r.data),
+  demoAccounts: () => api.get('/auth/demo-accounts').then(r => r.data),
+};
+
+export const knowledgeApi = {
+  collections: () => api.get('/knowledge/collections').then(r => r.data),
+  search: (q: string, collection?: string) => api.get('/knowledge/search', { params: { q, collection } }).then(r => r.data),
+  add: (data: any) => api.post('/knowledge/add', data).then(r => r.data),
+};
+
+export const evalApi = {
+  datasets: () => api.get('/eval/datasets').then(r => r.data),
+  run: (dataset: string) => api.post('/eval/run', { dataset }).then(r => r.data),
+  runs: () => api.get('/eval/runs').then(r => r.data),
+  metrics: () => api.get('/eval/metrics').then(r => r.data),
+  router: (task: string) => api.post('/eval/agent-router', { task }).then(r => r.data),
+};
+
+export const billingApi = {
+  tiers: () => api.get('/billing/tiers').then(r => r.data),
+  subscribe: (data: any) => api.post('/billing/subscribe', data).then(r => r.data),
+  subscription: (userId: string) => api.get(`/billing/subscription/${userId}`).then(r => r.data),
+};
+
+export const integrationsApi = {
+  list: () => api.get('/integrations/').then(r => r.data),
+};
