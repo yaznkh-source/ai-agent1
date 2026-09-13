@@ -11,7 +11,7 @@ import os
 from .core.config import settings
 from .core.database import init_db
 from .core.swagger import openapi_custom_info, swagger_custom_css
-from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing, billing_real, verification, marketplace, realtime, storage, audit, teams, zapier, hubspot
+from .routers import chat, agents, skills, memory, tools, functions, pipelines, agency, auth, knowledge, eval, integrations, billing, billing_real, verification, marketplace, realtime, storage, audit, teams, zapier, hubspot, slack_real, monitoring
 from .core.auth import create_default_users
 
 # Initialize DB
@@ -64,6 +64,8 @@ app.include_router(audit.router)
 app.include_router(teams.router)
 app.include_router(zapier.router)
 app.include_router(hubspot.router)
+app.include_router(slack_real.router)
+app.include_router(monitoring.router)
 
 @app.get("/")
 async def root():
